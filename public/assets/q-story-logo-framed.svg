@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <clipPath id="frame">
+      <rect width="512" height="512" rx="138" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#frame)">
+    <rect width="512" height="512" fill="#fff4df" />
+    <image
+      href="q-story-logo.svg"
+      x="48"
+      y="38"
+      width="416"
+      height="436"
+      preserveAspectRatio="xMidYMid slice"
+    />
+  </g>
+</svg>
