@@ -117,7 +117,7 @@ test('개인정보나 실명 연락처를 랜딩에 노출하지 않는다', () 
 
 test('Google Analytics는 광고 기능을 끄고 경로·utm만 보낸다', async () => {
   const ga = await readFile(new URL('src/ga.js', root), 'utf8');
-  assert.match(ga, /G-79Z59DXLN3/);
+  assert.match(ga, /G-7PH6EEGDR3/);
   assert.match(ga, /allow_google_signals: false/);
   assert.match(ga, /allow_ad_personalization_signals: false/);
   assert.match(ga, /ad_storage: 'denied'/);
