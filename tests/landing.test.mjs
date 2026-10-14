@@ -144,3 +144,25 @@ test('자체 통계는 살아 있는 데모 프록시로 보내고 예전 Edge F
   assert.match(tracking, /LEGACY_ANALYTICS_PATH/);
   assert.match(exampleEnv, /VITE_ANALYTICS_URL=https:\/\/demo\.qstory\.ai\.kr\/api\/qstory\/v1\/beta-events/);
 });
+
+test('소개 원은 끌 수 있고 놓으면 스프링으로 돌아오며, 움직임 줄이기·화면 밖을 지킨다', async () => {
+  const circles = await readFile(new URL('src/intro-circles.js', root), 'utf8');
+  const motion = await readFile(new URL('src/motion.js', root), 'utf8');
+  ['discover', 'express', 'explore'].forEach((name) => assert.match(html, new RegExp(`data-circle="${name}"`)));
+  assert.match(circles, /pointerdown/);
+  assert.match(circles, /setPointerCapture/);
+  assert.match(circles, /prefers-reduced-motion: reduce/);
+  assert.match(circles, /IntersectionObserver/);
+  assert.match(circles, /requestAnimationFrame/);
+  assert.match(circles, /sessionStorage/);
+  assert.match(main, /intro_circle_drag/);
+  assert.match(styles, /\.bubble\[data-circle\] \{\s*touch-action: pan-y;/);
+  assert.doesNotMatch(styles, /touch-action: none/);
+  assert.match(circles, /pointerId !== circle\.pointerId/);
+  assert.match(styles, /@keyframes qs-float/);
+  assert.match(tracking, /\.then\(\(response\) => response\.ok\)/);
+  assert.match(motion, /prefers-reduced-motion: reduce/);
+  // 숨김은 JS가 붙인 클래스 아래에서만 - JS가 없으면 내용이 그대로 보인다.
+  assert.match(styles, /\.js-motion \.reveal:not\(\.is-in\)/);
+  assert.doesNotMatch(styles.replace(/\.js-motion[^{]*\{[^}]*\}/g, ''), /\.reveal:not\(\.is-in\)/);
+});

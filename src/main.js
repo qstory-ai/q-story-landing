@@ -1,6 +1,9 @@
+import { initIntroCircles } from './intro-circles.js';
+import { animatePanel, initMotion } from './motion.js';
 import {
   CONTACT_EMAIL,
   landingMetadata,
+  trackGaEvent,
   trackLandingEvent,
   wireCtas,
   wireEmailCopy,
@@ -12,6 +15,18 @@ wireZoom();
 wireCtas();
 wireMenu();
 wireEmailCopy();
+initMotion();
+// 소개 원 끌기 - 원 이름만, 탭(sessionStorage)당 원별 1회. 자체 통계 전송이 성공해야 기록한다.
+const gaCircleSent = new Set();
+initIntroCircles({
+  onFirstDrag: (circle) => {
+    if (!gaCircleSent.has(circle)) {
+      gaCircleSent.add(circle);
+      trackGaEvent('intro_circle_drag', { circle });
+    }
+    return trackLandingEvent('intro_circle_drag', { circle });
+  },
+});
 
 trackLandingEvent('landing_view', {
   page: 'landing',
@@ -50,7 +65,10 @@ const selectTab = (tab, focus = false) => {
     other.setAttribute('aria-selected', String(selected));
     other.tabIndex = selected ? 0 : -1;
     const panel = document.getElementById(other.getAttribute('aria-controls'));
-    if (panel) panel.hidden = !selected;
+    if (panel) {
+      panel.hidden = !selected;
+      if (selected) animatePanel(panel);
+    }
   });
   if (focus) tab.focus();
 };

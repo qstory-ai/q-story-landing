@@ -1748,8 +1748,9 @@ button {
   .about-link { display: none; }
   .bubbles { display: grid; gap: 14px; margin: 36px auto 0; justify-items: center; }
   .bubble { width: 220px; height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
-  .bubble:nth-child(2) { transform: translateX(46px); }
-  .bubble:nth-child(odd) { transform: translateX(-46px); }
+  .bubble { position: relative !important; top: 0 !important; left: 0; }
+  .bubble:nth-child(2) { left: 46px; }
+  .bubble:nth-child(odd) { left: -46px; }
   .bubble strong { font-size: 20px; line-height: 28px; }
   .about-note { width: auto; margin-top: 32px; }
 
@@ -1872,4 +1873,130 @@ button {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   * { transition: none !important; }
+}
+
+/* =========================================================
+   움직임 - opacity·translate·scale만. 숨김은 JS가 붙인 html.js-motion 아래에서만, 움직임 줄이기면 전부 끔.
+   ========================================================= */
+
+/* 소개 원 끌기 - 세로 스크롤은 브라우저에 맡기고(pan-y) 가로로 먼저 움직일 때만 JS가 끌기로 잡는다. */
+.bubble[data-circle] {
+  touch-action: pan-y;
+  cursor: grab;
+  transition: box-shadow 0.2s ease;
+}
+
+.bubble[data-circle].is-moving {
+  will-change: transform;
+}
+
+.bubble[data-circle].is-dragging {
+  cursor: grabbing;
+  user-select: none;
+  box-shadow: 0 14px 30px rgba(63, 56, 70, 0.2);
+  z-index: 2;
+}
+
+/* 평소 떠다니기(±4px, 원마다 다른 주기·위상) - CSS라 JS는 돌지 않는다. 화면 밖이면 멈춘다. */
+@keyframes qs-float {
+  0%, 100% { translate: 0 0; }
+  25% { translate: 4px -3px; }
+  50% { translate: 1px 4px; }
+  75% { translate: -4px 1px; }
+}
+
+.js-motion .bubble[data-circle] { animation: qs-float 8s ease-in-out infinite; }
+.js-motion .bubble--pink[data-circle] { animation-duration: 9.5s; animation-delay: -3s; }
+.js-motion .bubble--green[data-circle] { animation-duration: 11s; animation-delay: -6s; }
+.js-motion .is-offscreen .bubble[data-circle] { animation-play-state: paused; }
+
+.about-link {
+  overflow: visible;
+}
+
+/* CTA: 살짝 떠오르고 화살표가 앞으로, 누르면 살짝 눌림 */
+.btn-cta {
+  transition: background-color 0.2s ease, translate 0.2s ease, box-shadow 0.2s ease, scale 0.1s ease;
+}
+
+.btn-cta .arrow {
+  transition: translate 0.2s ease;
+}
+
+@media (hover: hover) {
+  .btn-cta:hover {
+    translate: 0 -2px;
+    box-shadow: 0 10px 20px rgba(48, 32, 104, 0.3);
+  }
+
+  .btn-cta:hover .arrow {
+    translate: 3px 0;
+  }
+}
+
+.btn-cta:active {
+  scale: 0.98;
+}
+
+@keyframes qs-rise {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+}
+
+@keyframes qs-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes qs-pop {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+/* 첫 화면: 제목 → 부제 → CTA 차례로 */
+.js-motion .hero-title { animation: qs-rise 0.5s ease-out backwards; }
+.js-motion .hero-sub { animation: qs-rise 0.5s ease-out 0.08s backwards; }
+.js-motion .hero-cta { animation: qs-rise 0.5s ease-out 0.16s backwards; }
+
+/* 구역 제목·본문: 들어올 때 한 번 */
+.js-motion .reveal {
+  transition: opacity 0.5s ease-out var(--reveal-delay, 0ms), translate 0.5s ease-out var(--reveal-delay, 0ms);
+}
+
+.js-motion .reveal:not(.is-in) {
+  opacity: 0;
+  translate: 0 12px;
+}
+
+/* 이용방법 탭: 짧은 크로스페이드, 02 말풍선은 처음 한 번 차례로 */
+.js-motion .how-panel.is-entering { animation: qs-fade 0.22s ease-out; }
+.js-motion .how-panel.chat-pop .chat { animation: qs-pop 0.28s ease-out backwards; }
+.js-motion .how-panel.chat-pop .chat--child { animation-delay: 0.08s; }
+.js-motion .how-panel.chat-pop .chat--hansel { animation-delay: 0.26s; }
+.js-motion .how-panel.chat-pop .chat--typing-r { animation-delay: 0.44s; }
+.js-motion .how-panel.chat-pop .chat--typing-l { animation-delay: 0.58s; }
+
+/* 자주 묻는 질문: 펼칠 때 답이 살짝 떠오르며(화살표는 회전) */
+.js-motion .faq-list details[open] p { animation: qs-rise 0.24s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble[data-circle] {
+    animation: none !important;
+  }
+
+  .bubble[data-circle],
+  .btn-cta,
+  .btn-cta .arrow {
+    transition: none;
+  }
+
+  .btn-cta:hover,
+  .btn-cta:hover .arrow {
+    translate: none;
+  }
 }

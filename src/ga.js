@@ -6,7 +6,7 @@ export const GA_MEASUREMENT_ID_DEFAULT = 'G-7PH6EEGDR3';
 export const GA_LINKER_DOMAINS = ['qstory.ai.kr', 'demo.qstory.ai.kr'];
 const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
 const GA_HIT_HOST = /(^|\.)(google-analytics\.com|analytics\.google\.com)$/;
-const KEPT_EVENTS = new Set(['page_view', 'cta_click', 'user_engagement', 'scroll']);
+const KEPT_EVENTS = new Set(['page_view', 'cta_click', 'intro_circle_drag', 'user_engagement', 'scroll']);
 
 /** 주소 → 경로 + utm 쿼리. */
 export function gaPageLocation(href) {

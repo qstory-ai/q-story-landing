@@ -115,9 +115,10 @@ function getSessionId() {
 const sessionId = getSessionId();
 export const trackGaEvent = initGoogleAnalytics({ measurementId: configuredGaMeasurementId, trafficType });
 
+/** 자체 통계 한 건. 전송 성공(2xx)이면 true - 실패해도 체험 흐름은 막지 않는다. */
 export function trackLandingEvent(eventName, metadata = {}) {
-  if (!analyticsUrl) return;
-  void fetch(analyticsUrl, {
+  if (!analyticsUrl) return Promise.resolve(false);
+  return fetch(analyticsUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -130,9 +131,9 @@ export function trackLandingEvent(eventName, metadata = {}) {
       schema_version: 1,
     }),
     keepalive: true,
-  }).catch(() => {
-    // 분석 실패 때문에 가족의 체험 흐름을 막지 않는다.
-  });
+  })
+    .then((response) => response.ok)
+    .catch(() => false);
 }
 
 function playerUrlForSession(value) {
@@ -146,7 +147,7 @@ function playerUrlForSession(value) {
 const sessionPlayerUrl = playerUrlForSession(playerUrl);
 
 function trackCta(location) {
-  trackLandingEvent('landing_cta_click', { cta_location: location });
+  void trackLandingEvent('landing_cta_click', { cta_location: location });
   trackGaEvent('cta_click', { cta_location: location });
 }
 
