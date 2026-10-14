@@ -4,27 +4,34 @@ import { test } from 'node:test';
 
 const root = new URL('../', import.meta.url);
 const html = await readFile(new URL('index.html', root), 'utf8');
-const script = await readFile(new URL('src/main.js', root), 'utf8');
+const partnerHtml = await readFile(new URL('partner.html', root), 'utf8');
+const main = await readFile(new URL('src/main.js', root), 'utf8');
+const tracking = await readFile(new URL('src/tracking.js', root), 'utf8');
+const partnerJs = await readFile(new URL('src/partner.js', root), 'utf8');
 const styles = await readFile(new URL('src/styles.css', root), 'utf8');
 const exampleEnv = await readFile(new URL('.env.example', root), 'utf8');
+const viteConfig = await readFile(new URL('vite.config.js', root), 'utf8');
+const script = `${main}\n${tracking}`;
 
-test('hero부터 footer까지 핵심 랜딩 섹션을 제공한다', () => {
-  const requiredIds = ['top', 'experience', 'difference', 'trust', 'beta', 'faq'];
-  requiredIds.forEach((id) => assert.match(html, new RegExp(`id="${id}"`)));
+test('Figma 시안 순서대로 첫 화면부터 바닥글까지 구역을 둔다', () => {
+  const ids = ['top', 'about', 'how', 'start', 'faq', 'together'];
+  const positions = ids.map((id) => html.indexOf(`id="${id}"`));
+  positions.forEach((position, index) => assert.ok(position > 0, `${ids[index]} 구역이 있어야 한다`));
+  positions.slice(1).forEach((position, index) => assert.ok(position > positions[index], '시안 순서'));
   assert.match(html, /<footer class="site-footer">/);
-
-  const orderedSections = requiredIds.map((id) => html.indexOf(`id="${id}"`));
-  orderedSections.slice(1).forEach((position, index) => {
-    assert.ok(position > orderedSections[index], '섹션은 베타 의사결정 흐름 순서로 배치되어야 한다');
-  });
+  assert.match(html, /AI 시대, 스스로 묻는 아이로 자라게/);
+  assert.match(html, /답을 찾는 것보다,/);
+  assert.match(html, /읽고, 묻고, 이야기를 이어가요/);
+  assert.match(html, /더 많은 이야기와 질문을,/);
 });
 
-test('모든 서비스 CTA는 환경변수 기반 링크로 연결된다', () => {
+test('무료 체험 CTA는 환경변수 기반 플레이어 주소로, 세션·유입 정보를 붙여 연결된다', () => {
   const ctaCount = (html.match(/data-player-link/g) ?? []).length;
-  assert.ok(ctaCount >= 4, '주요 진입 구간마다 체험 CTA가 있어야 한다');
+  assert.ok(ctaCount >= 4, '머리글·메뉴·첫 화면·시작 구역마다 체험 CTA가 있어야 한다');
+  const located = html.match(/data-player-link data-cta-location=/g) ?? [];
+  assert.equal(located.length, ctaCount);
   assert.match(script, /import\.meta\.env\.VITE_PLAYER_URL/);
   assert.match(script, /new URL\(value\)/);
-  assert.equal((html.match(/data-cta-location=/g) ?? []).length, ctaCount);
   assert.match(script, /VITE_ANALYTICS_URL/);
   assert.match(script, /session_id/);
   assert.match(script, /landing_view/);
@@ -35,10 +42,33 @@ test('모든 서비스 CTA는 환경변수 기반 링크로 연결된다', () =>
   assert.match(script, /utm_campaign/);
   assert.match(script, /utm_content/);
   assert.match(script, /url\.searchParams\.set\('traffic_type'/);
-  assert.match(
-    exampleEnv,
-    /VITE_PLAYER_URL=https:\/\/play\.qstory\.ai\.kr(?:\r?\n|$)/,
-  );
+  assert.match(exampleEnv, /VITE_PLAYER_URL=https:\/\/play\.qstory\.ai\.kr(?:\r?\n|$)/);
+});
+
+test('로그인/회원가입은 웹앱 /login, 협업하기는 /partner 문의 화면으로 간다', () => {
+  assert.match(html, /data-app-login[^>]*href="https:\/\/demo\.qstory\.ai\.kr\/login"/);
+  assert.match(tracking, /\$\{appUrl\}\/login/);
+  assert.match(html, /href="\/partner" data-partner-link/);
+  assert.match(viteConfig, /partner: 'partner\.html'/);
+  assert.match(exampleEnv, /VITE_APP_URL=https:\/\/demo\.qstory\.ai\.kr/);
+});
+
+test('협업 문의 폼은 시안 항목을 받고 데모 프록시의 partnership-inquiries로 보낸다', () => {
+  ['name="role"', 'value="ORGANIZATION"', 'value="PUBLISHER"', 'value="OTHER"', 'name="name"', 'name="affiliation"',
+    'name="jobTitle"', 'name="phone"', 'name="email"', 'name="message"', 'name="consent"'].forEach((field) =>
+    assert.ok(partnerHtml.includes(field), field));
+  assert.match(partnerHtml, /협업 문의가 접수되었어요\./);
+  assert.match(partnerHtml, /문의 전송 중 문제가 발생했어요\./);
+  assert.match(partnerHtml, /수집일로부터 1년/);
+  assert.match(tracking, /\/api\/qstory\/v1\/partnership-inquiries/);
+  assert.match(partnerJs, /privacyConsent/);
+  assert.match(partnerJs, /method: 'POST'/);
+});
+
+test('문의 메일은 선택 가능한 글자와 복사 버튼으로 보인다', () => {
+  assert.match(html, /<a href="mailto:qstoryai@gmail\.com" data-email>qstoryai@gmail\.com<\/a>/);
+  assert.match(html, /data-copy-email/);
+  assert.match(tracking, /navigator\.clipboard\.writeText/);
 });
 
 test('대표 QR 주소를 랜딩 홈으로 임시 리다이렉트한다', async () => {
@@ -52,67 +82,37 @@ test('대표 QR 주소를 랜딩 홈으로 임시 리다이렉트한다', async 
   ]);
 });
 
-test('공식 SVG 로고와 실제 헨젤과 그레텔 삽화가 포함된다', async () => {
-  const logo = await stat(new URL('public/assets/q-story-logo.svg', root));
-  const hero = await stat(new URL('public/assets/hansel-gretel-hero.webp', root));
-  const parentTalk = await stat(new URL('public/assets/hansel-gretel-parent-talk.webp', root));
-  const questionSky = await stat(new URL('public/assets/q-story-question-sky.webp', root));
-  const heroQuestionBook = await stat(new URL('public/assets/q-story-hero-question-book.webp', root));
-  assert.ok(logo.size > 10_000, '공식 SVG 로고가 비어 있지 않아야 한다');
-  assert.ok(hero.size > 10_000, '히어로 삽화가 비어 있지 않아야 한다');
-  assert.ok(parentTalk.size > 10_000, '부모 리포트 미리보기 삽화가 비어 있지 않아야 한다');
-  assert.ok(questionSky.size > 10_000, '최종 CTA 일러스트가 비어 있지 않아야 한다');
-  assert.ok(heroQuestionBook.size > 10_000, '히어로 보조 일러스트가 비어 있지 않아야 한다');
-  assert.match(html, /src="\/assets\/q-story-logo\.svg"/);
-  assert.match(html, /src="\/assets\/hansel-gretel-hero\.webp"/);
-});
-
-test('Pretendard 통일과 모바일 탐색·부모 리포트 미리보기를 제공한다', () => {
-  assert.ok((html.match(/AI 시대, 스스로 묻는 아이로 자라게/g) ?? []).length >= 3);
-  assert.match(html, /class="mobile-section-nav"/);
-  assert.match(html, /Q-Story란/);
-  assert.match(html, /장면 변화/);
-  assert.match(html, /안심 설계/);
-  assert.match(html, /베타 안내/);
-  assert.match(html, /class="report-preview"/);
-  assert.match(html, /여러분의 1분 후기가 다음 동화와 체험 방식을 결정/);
-  assert.match(html, /q-story-question-sky\.webp/);
-  assert.match(html, /q-story-hero-question-book\.webp/);
+test('시안 에셋(로고·삽화)이 들어 있고 Pretendard를 쓴다', async () => {
+  for (const asset of ['qstory-logo.png', 'hero-tablet.webp', 's3-kid.webp', 's3-mom.webp', 's4-hansel.webp', 's5-child.webp', 's6-house.webp']) {
+    const info = await stat(new URL(`public/assets/${asset}`, root));
+    assert.ok(info.size > 5_000, `${asset}가 비어 있지 않아야 한다`);
+  }
+  assert.match(html, /src="\/assets\/qstory-logo\.png"/);
+  assert.match(html, /pretendard@v1\.3\.9/);
   assert.match(styles, /Pretendard Variable/);
-  assert.doesNotMatch(html, /Gowun\+Batang/);
-  assert.doesNotMatch(styles, /Gowun Batang/);
-  assert.doesNotMatch(html, /class="hero-ribbon"/);
 });
 
-test('1차 베타의 장면 변화 범위를 정확하게 약속한다', () => {
-  assert.match(html, /아이의 질문과 선택으로/);
-  assert.match(html, /동화의 중간 장면이 달라져요/);
-  assert.match(html, /중요한 사건과 결말은 안전하게 이어져요/);
+test('옛 문구(음성 90일 보관·아이 이름으로 초대·1차 베타 범위)를 쓰지 않는다', () => {
+  assert.doesNotMatch(html, /음성[^<]{0,40}90일|90일간 보관/);
+  assert.doesNotMatch(html, /아이 이름으로 초대/);
   assert.doesNotMatch(html, /동화의 다음 장면이 달라져요/);
-  assert.doesNotMatch(html, /한 편을 움직여 보세요/);
+  assert.doesNotMatch(html, /privacy\.html/);
+});
+
+test('개인정보처리방침·이용약관은 공개 주소 대신 문의 메일로 안내한다', () => {
+  assert.match(html, /data-legal="privacy"/);
+  assert.match(main, /으로 요청해 주시면 보내 드려요/);
 });
 
 test('접근성 기본 구조를 제공한다', () => {
-  assert.match(html, /lang="ko"/);
-  assert.match(html, /class="skip-link"/);
-  assert.match(html, /aria-live="polite"/);
-  assert.match(script, /aria-current/);
-  assert.doesNotMatch(html, /<img(?![^>]*\balt=)[^>]*>/);
-});
-
-test('체험 시간과 선택동의 음성 보관 안내가 현재 구현과 일치한다', () => {
-  assert.doesNotMatch(html, /8[\u2013~\-]10/);
-  assert.match(html, /data-duration-disclosure="variable"/);
-  assert.match(html, /data-beta-voice-storage="optional-consent"/);
-  assert.match(html, /보호자가 체크한 경우에만/);
-  assert.match(html, /90일간 보관/);
-  assert.match(html, /동의하지 않아도 체험할 수/);
-  assert.doesNotMatch(html, /원음 연구 저장 안 함|원음 저장 기능을 운영하지 않습니다/);
-});
-
-test('개인정보나 실명 연락처를 랜딩에 노출하지 않는다', () => {
-  assert.doesNotMatch(html, /privacy\.html|개인정보처리방침/);
-  assert.doesNotMatch(html, /tel:|010[-\s]?\d{4}[-\s]?\d{4}/);
+  for (const page of [html, partnerHtml]) {
+    assert.match(page, /lang="ko"/);
+    assert.match(page, /class="skip-link"/);
+    assert.match(page, /aria-live="polite"/);
+    assert.doesNotMatch(page, /<img(?![^>]*\balt=)[^>]*>/);
+  }
+  assert.match(main, /aria-current/);
+  assert.match(html, /role="tablist"/);
 });
 
 test('Google Analytics는 광고 기능을 끄고 경로·utm만 보낸다', async () => {
@@ -123,8 +123,8 @@ test('Google Analytics는 광고 기능을 끄고 경로·utm만 보낸다', asy
   assert.match(ga, /ad_storage: 'denied'/);
   assert.match(ga, /send_page_view: false/);
   assert.match(ga, /'qstory\.ai\.kr', 'demo\.qstory\.ai\.kr'/);
-  assert.match(script, /initGoogleAnalytics/);
-  assert.match(script, /trackGaEvent\('cta_click'/);
+  assert.match(tracking, /initGoogleAnalytics/);
+  assert.match(tracking, /trackGaEvent\('cta_click'/);
 
   const { gaPageLocation, gaReferrer, scrubGaHit } = await import(new URL('src/ga.js', root).href);
   assert.equal(
@@ -133,14 +133,14 @@ test('Google Analytics는 광고 기능을 끄고 경로·utm만 보낸다', asy
   );
   assert.equal(gaReferrer('https://search.example/q?x=secret'), 'https://search.example/');
   const collect = 'https://region1.google-analytics.com/g/collect?v=2';
-  assert.equal(scrubGaHit(`${collect}&en=page_view&dl=https%3A%2F%2Fqstory.ai.kr%2F%23beta`, null), null);
+  assert.equal(scrubGaHit(`${collect}&en=page_view&dl=https%3A%2F%2Fqstory.ai.kr%2F%23faq`, null), null);
   assert.equal(scrubGaHit(`${collect}&en=click`, null), null);
   const kept = scrubGaHit(`${collect}&en=page_view&ep.qs_surface=landing&dl=${encodeURIComponent('https://qstory.ai.kr/?session_id=abc&utm_source=qr')}`, null);
   assert.equal(new URL(kept.url).searchParams.get('dl'), 'https://qstory.ai.kr/?utm_source=qr');
 });
 
 test('자체 통계는 살아 있는 데모 프록시로 보내고 예전 Edge Function 주소는 쓰지 않는다', () => {
-  assert.match(script, /https:\/\/demo\.qstory\.ai\.kr\/api\/qstory\/v1\/beta-events/);
-  assert.match(script, /LEGACY_ANALYTICS_PATH/);
+  assert.match(tracking, /https:\/\/demo\.qstory\.ai\.kr\/api\/qstory\/v1\/beta-events/);
+  assert.match(tracking, /LEGACY_ANALYTICS_PATH/);
   assert.match(exampleEnv, /VITE_ANALYTICS_URL=https:\/\/demo\.qstory\.ai\.kr\/api\/qstory\/v1\/beta-events/);
 });

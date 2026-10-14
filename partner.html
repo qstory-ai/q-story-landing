@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#7550d3" />
+    <meta name="description" content="교육기관·출판사·창작자와 Q-Story의 협업 문의" />
+    <title>함께하기 | Q-Story 협업 문의</title>
+    <link rel="icon" href="/assets/qstory-icon.png" type="image/png" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <script>
+      document.documentElement.style.setProperty('--z', String(Math.min(1, window.innerWidth / 1440)));
+    </script>
+    <script type="module" src="/src/partner.js"></script>
+  </head>
+  <body class="partner-page">
+    <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+
+    <header class="site-header" data-header>
+      <div class="header-bar">
+        <a class="header-logo" href="/" aria-label="Q-Story 홈">
+          <img src="/assets/qstory-logo.png" alt="Q-Story" width="113" height="38" />
+        </a>
+        <nav class="header-nav" aria-label="주요 메뉴">
+          <a href="/#about">Q-Story 소개</a>
+          <a href="/#how">이용방법</a>
+          <a href="/#faq">자주 묻는 질문</a>
+          <a href="/#together" aria-current="page">함께하기</a>
+        </nav>
+        <div class="header-actions">
+          <a class="btn-outline-sm" data-app-login data-cta-location="partner-login" href="https://demo.qstory.ai.kr/login">로그인/회원가입</a>
+          <a class="btn-fill-sm" data-player-link data-cta-location="partner-header" href="/#start">무료로 체험하기</a>
+          <button class="menu-button" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="site-menu" data-menu-button>
+            <svg viewBox="0 0 22 16" aria-hidden="true"><path d="M1 1.5h20M1 8h20M1 14.5h20" /></svg>
+          </button>
+        </div>
+      </div>
+      <div class="site-menu" id="site-menu" hidden data-menu>
+        <nav aria-label="전체 메뉴">
+          <a href="/#about">Q-Story 소개</a>
+          <a href="/#how">이용방법</a>
+          <a href="/#faq">자주 묻는 질문</a>
+          <a href="/#together">함께하기</a>
+        </nav>
+        <div class="site-menu-actions">
+          <a class="btn-outline-sm" data-app-login data-cta-location="partner-menu-login" href="https://demo.qstory.ai.kr/login">로그인/회원가입</a>
+          <a class="btn-fill-sm" data-player-link data-cta-location="partner-menu" href="/#start">무료로 체험하기</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="partner-main">
+      <section class="partner" aria-labelledby="partner-title" data-partner-view="form">
+        <h1 id="partner-title" class="partner-title">함께하기</h1>
+        <p class="partner-lead">아이들의 질문과 상상이 더 넓은 세상으로 이어질 수 있도록, Q-Story는 다양한 파트너와의 협업을 기다립니다.</p>
+
+        <form class="partner-form" data-partner-form novalidate>
+          <fieldset class="field field--chips">
+            <legend>문의유형<em aria-hidden="true">*</em></legend>
+            <div class="chips">
+              <label class="chip-option"><input type="radio" name="role" value="ORGANIZATION" checked /><span>교육기관</span></label>
+              <label class="chip-option"><input type="radio" name="role" value="PUBLISHER" /><span>콘텐츠</span></label>
+              <label class="chip-option"><input type="radio" name="role" value="OTHER" /><span>기타</span></label>
+            </div>
+          </fieldset>
+
+          <div class="field">
+            <label for="pf-name">성함<em aria-hidden="true">*</em></label>
+            <input id="pf-name" name="name" type="text" autocomplete="name" maxlength="60" placeholder="담당자 성함" required />
+            <p class="field-error" id="pf-name-error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="pf-affiliation">소속 기관/기업명<em aria-hidden="true">*</em></label>
+            <input id="pf-affiliation" name="affiliation" type="text" autocomplete="organization" maxlength="100" placeholder="기관 또는 기업명" required />
+            <p class="field-error" id="pf-affiliation-error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="pf-job">직급/역할</label>
+            <input id="pf-job" name="jobTitle" type="text" autocomplete="organization-title" maxlength="60" placeholder="직급 또는 담당 역할 (대표, 팀장, 교사, 콘텐츠 담당자 등)" />
+            <p class="field-error" id="pf-job-error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="pf-phone">전화번호</label>
+            <input id="pf-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="010-0000-0000" />
+            <p class="field-error" id="pf-phone-error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="pf-email">이메일<em aria-hidden="true">*</em></label>
+            <input id="pf-email" name="email" type="email" autocomplete="email" maxlength="254" placeholder="example@company.com" required />
+            <p class="field-error" id="pf-email-error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="pf-message">문의 내용<em aria-hidden="true">*</em></label>
+            <textarea id="pf-message" name="message" maxlength="2000" rows="4" placeholder="어떤 협업을 생각하고 계신가요?" required></textarea>
+            <p class="field-error" id="pf-message-error" hidden></p>
+          </div>
+
+          <div class="consent">
+            <label class="consent-check">
+              <input type="checkbox" name="consent" required />
+              <span>개인정보 수집 및 이용에 동의합니다.<em aria-hidden="true">*</em></span>
+            </label>
+            <p class="consent-detail">수집 항목: 성함, 소속, 직급/역할·전화번호(선택), 이메일, 문의 내용 · 목적: 협업 문의 답변과 협의 · 보관: 수집일로부터 1년 뒤 파기. 동의하지 않으면 문의를 보낼 수 없어요.</p>
+            <p class="field-error field-error--center" id="pf-consent-error" hidden></p>
+          </div>
+
+          <button class="btn-cta partner-submit" type="submit" data-partner-submit>
+            문의 보내기
+            <svg class="arrow" viewBox="0 0 12 10" aria-hidden="true"><path d="M0 5h11M7 1l4 4-4 4" /></svg>
+          </button>
+        </form>
+      </section>
+
+      <section class="partner-result" data-partner-view="success" hidden aria-labelledby="partner-ok-title" tabindex="-1">
+        <span class="result-icon result-icon--ok" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-13" /></svg></span>
+        <h1 id="partner-ok-title" class="result-title">협업 문의가 접수되었어요.</h1>
+        <p class="result-text">Q-Story에 관심을 가져주셔서 감사합니다. <br />보내주신 내용을 확인한 후 입력하신 이메일로 연락드리겠습니다.</p>
+        <a class="btn-cta result-button" href="/">홈으로 돌아가기</a>
+      </section>
+
+      <section class="partner-result" data-partner-view="error" hidden aria-labelledby="partner-err-title" tabindex="-1">
+        <span class="result-icon result-icon--error" aria-hidden="true"><svg viewBox="0 0 56 50"><path d="M24.5 4.2a4 4 0 0 1 7 0l22 38.5a4 4 0 0 1-3.5 6H6a4 4 0 0 1-3.5-6Z" /><path class="mark" d="M28 17v13M28 37v.5" /></svg></span>
+        <h1 id="partner-err-title" class="result-title result-title--error">문의 전송 중 문제가 발생했어요.</h1>
+        <p class="result-text">일시적인 연결 문제일 수 있어요. <br />인터넷 연결 상태를 확인한 후 다시 시도해 주세요. <br />문제가 계속된다면 공식 이메일로 문의해주세요.</p>
+        <p class="result-email"><a href="mailto:qstoryai@gmail.com" data-email>qstoryai@gmail.com</a><button class="copy-button" type="button" data-copy-email aria-label="이메일 주소 복사">복사</button></p>
+        <button class="btn-cta result-button" type="button" data-partner-retry>다시 시도하기</button>
+      </section>
+      <p class="copy-toast" data-copy-toast role="status" aria-live="polite"></p>
+    </main>
+  </body>
+</html>
