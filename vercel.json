@@ -7,7 +7,7 @@
   "redirects": [
     {
       "source": "/qr",
-      "destination": "/",
+      "destination": "/?utm_source=qr&utm_medium=offline&utm_campaign=qr-main",
       "permanent": false
     }
   ],
