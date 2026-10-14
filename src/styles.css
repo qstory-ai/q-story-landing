@@ -1813,7 +1813,7 @@ button {
   .chat-card .chat { transform-origin: left top; scale: 0.82; }
   .chat--child { left: 70px; top: 40px; }
   .chat--hansel { left: 20px; top: 112px; }
-  .chat--typing-r { left: auto; right: 20px; top: 190px; transform-origin: right top; }
+  .chat-card .chat--typing-r { left: auto; right: 20px; top: 190px; transform-origin: right top; }
   .chat--typing-l { left: 20px; top: 244px; }
   .chat-bar { height: 64px; }
   .chat-bar span { top: 21px; font-size: 15px; }
