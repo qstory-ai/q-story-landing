@@ -2,7 +2,7 @@
 // 아동 서비스라 광고 기능은 전부 끄고, 주소는 경로 + utm 쿼리만 보낸다(session_id 같은 나머지 쿼리는 뺀다).
 // 브라우저의 GPC·Do Not Track이 켜져 있으면 불러오지 않는다. 자세한 설계는 Q-story-fe의 google-analytics.ts.
 
-export const GA_MEASUREMENT_ID_DEFAULT = 'G-79Z59DXLN3';
+export const GA_MEASUREMENT_ID_DEFAULT = 'G-7PH6EEGDR3';
 export const GA_LINKER_DOMAINS = ['qstory.ai.kr', 'demo.qstory.ai.kr'];
 const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
 const GA_HIT_HOST = /(^|\.)(google-analytics\.com|analytics\.google\.com)$/;
