@@ -1,239 +1,91 @@
-import { initGoogleAnalytics } from './ga.js';
+import {
+  CONTACT_EMAIL,
+  landingMetadata,
+  trackLandingEvent,
+  wireCtas,
+  wireEmailCopy,
+  wireMenu,
+  wireZoom,
+} from './tracking.js';
 
-const configuredPlayerUrl = import.meta.env.VITE_PLAYER_URL?.trim() ?? '';
-const configuredAnalyticsUrl = import.meta.env.VITE_ANALYTICS_URL?.trim() ?? '';
-const configuredGaMeasurementId = import.meta.env.VITE_GA_MEASUREMENT_ID?.trim() ?? '';
-const configuredLandingRelease = import.meta.env.VITE_LANDING_RELEASE?.trim() ?? '';
-const SESSION_STORAGE_KEY = 'qstory.beta.session.v1';
-const LANDING_RELEASE = configuredLandingRelease || 'tracking-v2-20260811';
-const TRAFFIC_TYPES = new Set(['beta', 'qa', 'dev']);
-const UUID_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-function getPlayerUrl(value) {
-  if (!value) return null;
-
-  try {
-    const url = new URL(value);
-    if (url.protocol !== 'https:' && url.protocol !== 'http:') return null;
-    return url.toString();
-  } catch {
-    return null;
-  }
-}
-
-// 자체 통계는 데모 앱의 프록시(/api/qstory/v1/beta-events, 랜딩 출처 CORS 허용)로 보낸다. 예전 Supabase Edge Function
-// 주소(/functions/v1/beta-events)는 없어졌으므로(405) 그 값이 환경변수에 남아 있어도 기본 주소를 쓴다.
-const DEFAULT_ANALYTICS_URL = 'https://demo.qstory.ai.kr/api/qstory/v1/beta-events';
-const LEGACY_ANALYTICS_PATH = /\/functions\/v1\/beta-events\/?$/;
-
-function getAnalyticsUrl(value) {
-  const configured = getPlayerUrl(value);
-  if (!configured || LEGACY_ANALYTICS_PATH.test(new URL(configured).pathname)) return DEFAULT_ANALYTICS_URL;
-  return configured;
-}
-
-const playerUrl = getPlayerUrl(configuredPlayerUrl);
-const analyticsUrl = getAnalyticsUrl(configuredAnalyticsUrl);
-const status = document.querySelector('[data-cta-status]');
-
-function trafficTypeForUrl(value) {
-  const url = new URL(value);
-  const requested = url.searchParams.get('traffic_type');
-  if (requested && TRAFFIC_TYPES.has(requested)) return requested;
-  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') return 'dev';
-  if (url.hostname.endsWith('.vercel.app')) return 'qa';
-  return 'beta';
-}
-
-function acquisitionMetadata(value) {
-  const params = new URL(value).searchParams;
-  return [
-    ['utm_source', 'utm_source'],
-    ['utm_medium', 'utm_medium'],
-    ['utm_campaign', 'utm_campaign'],
-    ['utm_content', 'utm_content'],
-  ].reduce((metadata, [parameter, key]) => {
-    const entry = params.get(parameter)?.trim().slice(0, 80);
-    if (entry) metadata[key] = entry;
-    return metadata;
-  }, {});
-}
-
-const trafficType = trafficTypeForUrl(window.location.href);
-const landingMetadata = {
-  traffic_type: trafficType,
-  landing_release: LANDING_RELEASE,
-  ...acquisitionMetadata(window.location.href),
-};
-
-function createSessionId() {
-  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (character) => {
-    const random = Math.floor(Math.random() * 16);
-    const value = character === 'x' ? random : (random & 0x3) | 0x8;
-    return value.toString(16);
-  });
-}
-
-function getSessionId() {
-  const fromUrl = new URL(window.location.href).searchParams.get('session_id');
-  if (fromUrl && UUID_PATTERN.test(fromUrl)) {
-    try {
-      globalThis.localStorage?.setItem(SESSION_STORAGE_KEY, fromUrl);
-    } catch {
-      // 분석 식별자가 체험 진입을 막아서는 안 된다.
-    }
-    return fromUrl;
-  }
-
-  try {
-    const stored = globalThis.localStorage?.getItem(SESSION_STORAGE_KEY);
-    if (stored && UUID_PATTERN.test(stored)) return stored;
-  } catch {
-    // 저장소 접근이 제한된 환경에서는 새 세션으로 계속한다.
-  }
-
-  const created = createSessionId();
-  try {
-    globalThis.localStorage?.setItem(SESSION_STORAGE_KEY, created);
-  } catch {
-    // 저장 실패는 비차단 조건이다.
-  }
-  return created;
-}
-
-const sessionId = getSessionId();
-const trackGaEvent = initGoogleAnalytics({ measurementId: configuredGaMeasurementId, trafficType });
-
-function trackLandingEvent(eventName, metadata = {}) {
-  if (!analyticsUrl) return;
-  void fetch(analyticsUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      event_id: createSessionId(),
-      session_id: sessionId,
-      event_name: eventName,
-      source: 'landing',
-      occurred_at: new Date().toISOString(),
-      metadata: { ...landingMetadata, ...metadata },
-      schema_version: 1,
-    }),
-    keepalive: true,
-  }).catch(() => {
-    // 분석 실패 때문에 가족의 체험 흐름을 막지 않는다.
-  });
-}
-
-function playerUrlForSession(value) {
-  if (!value) return null;
-  const url = new URL(value);
-  url.searchParams.set('session_id', sessionId);
-  url.searchParams.set('traffic_type', trafficType);
-  return url.toString();
-}
-
-const sessionPlayerUrl = playerUrlForSession(playerUrl);
-
-document.querySelectorAll('[data-player-link]').forEach((link) => {
-  link.addEventListener('click', () => {
-    trackLandingEvent('landing_cta_click', {
-      cta_location: link.dataset.ctaLocation ?? 'unknown',
-    });
-    trackGaEvent('cta_click', { cta_location: link.dataset.ctaLocation ?? 'unknown' });
-  });
-
-  if (sessionPlayerUrl) {
-    link.href = sessionPlayerUrl;
-    link.removeAttribute('aria-disabled');
-    return;
-  }
-
-  link.href = '#beta';
-  link.setAttribute('aria-disabled', 'true');
-  link.addEventListener('click', (event) => {
-    event.preventDefault();
-    document.querySelector('#beta')?.scrollIntoView({ behavior: 'smooth' });
-    if (status) {
-      status.textContent = '체험 주소를 연결하는 중이에요. 잠시 후 다시 확인해 주세요.';
-    }
-  });
-});
+wireZoom();
+wireCtas();
+wireMenu();
+wireEmailCopy();
 
 trackLandingEvent('landing_view', {
   page: 'landing',
   entry: landingMetadata.utm_source || 'direct',
 });
 
-document.querySelector('[data-year]').textContent = new Date().getFullYear();
+const year = document.querySelector('[data-year]');
+if (year) year.textContent = String(new Date().getFullYear());
 
-const header = document.querySelector('[data-header]');
-const setHeaderState = () => header?.classList.toggle('is-scrolled', window.scrollY > 20);
-setHeaderState();
-window.addEventListener('scroll', setHeaderState, { passive: true });
-
-const sectionLinks = [...document.querySelectorAll('.desktop-nav a[href^="#"], .mobile-section-nav a[href^="#"]')];
-const sectionTargets = [...new Set(sectionLinks.map((link) => link.getAttribute('href')))]
-  .map((hash) => document.querySelector(hash))
-  .filter(Boolean);
-
+// 머리글 메뉴: 지금 보는 구역 표시(aria-current).
+const sectionLinks = [...document.querySelectorAll('.header-nav a[href^="#"]')];
+const sectionTargets = sectionLinks.map((link) => document.querySelector(link.getAttribute('href'))).filter(Boolean);
 const setCurrentSection = (id) => {
   sectionLinks.forEach((link) => {
-    if (link.getAttribute('href') === `#${id}`) {
-      link.setAttribute('aria-current', 'location');
-    } else {
-      link.removeAttribute('aria-current');
-    }
+    if (link.getAttribute('href') === `#${id}`) link.setAttribute('aria-current', 'location');
+    else link.removeAttribute('aria-current');
   });
 };
-
+setCurrentSection('about');
 if ('IntersectionObserver' in window) {
-  const sectionObserver = new IntersectionObserver(
+  const observer = new IntersectionObserver(
     (entries) => {
-      const visible = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
       if (visible?.target.id) setCurrentSection(visible.target.id);
     },
-    { rootMargin: '-24% 0px -58% 0px', threshold: [0, 0.1, 0.35] }
+    { rootMargin: '-30% 0px -55% 0px', threshold: [0, 0.2] },
   );
-  sectionTargets.forEach((section) => sectionObserver.observe(section));
+  sectionTargets.forEach((section) => observer.observe(section));
 }
 
-document.querySelectorAll('details').forEach((detail) => {
+// 이용방법 탭(01·02·03).
+const tabs = [...document.querySelectorAll('.how-tab')];
+const selectTab = (tab, focus = false) => {
+  tabs.forEach((other) => {
+    const selected = other === tab;
+    other.setAttribute('aria-selected', String(selected));
+    other.tabIndex = selected ? 0 : -1;
+    const panel = document.getElementById(other.getAttribute('aria-controls'));
+    if (panel) panel.hidden = !selected;
+  });
+  if (focus) tab.focus();
+};
+tabs.forEach((tab, index) => {
+  tab.addEventListener('click', () => selectTab(tab));
+  tab.addEventListener('keydown', (event) => {
+    const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+    if (!step) return;
+    event.preventDefault();
+    selectTab(tabs[(index + step + tabs.length) % tabs.length], true);
+  });
+});
+
+// 자주 묻는 질문: 하나를 열면 나머지는 닫는다.
+document.querySelectorAll('.faq-list details').forEach((detail) => {
   detail.addEventListener('toggle', () => {
     if (!detail.open) return;
-    document.querySelectorAll('details[open]').forEach((openDetail) => {
-      if (openDetail !== detail) openDetail.removeAttribute('open');
+    document.querySelectorAll('.faq-list details[open]').forEach((other) => {
+      if (other !== detail) other.removeAttribute('open');
     });
   });
 });
 
-const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const revealTargets = document.querySelectorAll('.reveal');
-
-if (prefersReducedMotion || !('IntersectionObserver' in window)) {
-  revealTargets.forEach((el) => el.classList.add('is-visible'));
-} else {
-  const siblingDelays = new Map();
-  revealTargets.forEach((el) => {
-    const parent = el.parentElement;
-    const order = siblingDelays.get(parent) ?? 0;
-    el.style.setProperty('--reveal-delay', `${Math.min(order * 50, 150)}ms`);
-    siblingDelays.set(parent, order + 1);
+// 개인정보처리방침·이용약관: 공개 주소가 아직 없어 문의 메일로 안내한다.
+const legalNote = document.querySelector('[data-legal-note]');
+const LEGAL_LABEL = { privacy: '개인정보처리방침', terms: '이용약관' };
+document.querySelectorAll('[data-legal]').forEach((button) => {
+  button.addEventListener('click', () => {
+    if (!legalNote) return;
+    const label = LEGAL_LABEL[button.dataset.legal] ?? '문서';
+    legalNote.innerHTML = '';
+    legalNote.append(`${label} 전문은 `);
+    const link = document.createElement('a');
+    link.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`${label} 요청`)}`;
+    link.textContent = CONTACT_EMAIL;
+    legalNote.append(link, '으로 요청해 주시면 보내 드려요.');
   });
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target);
-      });
-    },
-    { rootMargin: '0px 0px -8% 0px', threshold: 0.08 }
-  );
-
-  revealTargets.forEach((el) => observer.observe(el));
-}
+});

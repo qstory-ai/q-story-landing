@@ -3,475 +3,354 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#1b0d33" />
+    <meta name="theme-color" content="#7550d3" />
     <meta
       name="description"
-      content="아이의 질문과 선택으로 동화의 중간 장면이 달라지는 AI 인터랙티브 동화 Q-Story. 6–9세 아이와 부모가 함께 헨젤과 그레텔을 무료로 체험하세요."
+      content="아이의 질문에 동화 속 캐릭터가 반응하는 인터랙티브 AI 동화 Q-Story. 「헨젤과 그레텔」을 무료로 체험해 보세요."
     />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ko_KR" />
-    <meta property="og:title" content="Q-Story | 질문과 선택으로 중간 장면이 달라지는 동화" />
-    <meta
-      property="og:description"
-      content="아이의 질문과 선택으로 동화의 중간 장면이 달라져요. 중요한 사건과 결말은 지키며 헨젤과 그레텔 한 편을 무료로 체험할 수 있어요."
-    />
-    <title>Q-Story | 질문과 선택으로 중간 장면이 달라지는 동화</title>
-    <link rel="icon" href="/assets/q-story-logo.svg" type="image/svg+xml" />
-    <link rel="preload" href="/assets/hansel-gretel-hero.webp" as="image" type="image/webp" />
+    <meta property="og:title" content="Q-Story | AI 시대, 스스로 묻는 아이로 자라게" />
+    <meta property="og:description" content="아이의 질문에 동화 속 캐릭터가 반응하는 인터랙티브 AI 동화" />
+    <title>Q-Story | AI 시대, 스스로 묻는 아이로 자라게</title>
+    <link rel="icon" href="/assets/qstory-icon.png" type="image/png" />
+    <link rel="preload" href="/assets/hero-tablet.webp" as="image" type="image/webp" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
     />
     <link rel="stylesheet" href="/src/styles.css" />
-    <noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>
+    <script>
+      // 데스크톱 시안(1440px)을 화면 폭에 맞춰 줄인다 - 첫 화면이 튀지 않게 그리기 전에 정한다.
+      document.documentElement.style.setProperty('--z', String(Math.min(1, window.innerWidth / 1440)));
+    </script>
     <script type="module" src="/src/main.js"></script>
   </head>
   <body>
-    <svg class="svg-defs" aria-hidden="true" focusable="false">
-      <defs>
-        <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol>
-        <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></symbol>
-        <symbol id="i-mic" viewBox="0 0 24 24">
-          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-          <line x1="12" x2="12" y1="19" y2="22" />
-        </symbol>
-        <symbol id="i-pencil" viewBox="0 0 24 24">
-          <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-          <path d="m15 5 4 4" />
-        </symbol>
-        <symbol id="i-book" viewBox="0 0 24 24">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-        </symbol>
-        <symbol id="i-sparkles" viewBox="0 0 24 24">
-          <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z" />
-        </symbol>
-        <symbol id="i-shield" viewBox="0 0 24 24">
-          <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
-          <path d="m9 12 2 2 4-4" />
-        </symbol>
-        <symbol id="i-question" viewBox="0 0 24 24">
-          <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-          <path d="M12 17h.01" />
-        </symbol>
-        <symbol id="i-play" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3" /></symbol>
-        <symbol id="i-retry" viewBox="0 0 24 24">
-          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-          <path d="M3 3v5h5" />
-        </symbol>
-        <symbol id="i-report" viewBox="0 0 24 24">
-          <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
-          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-          <path d="M12 11h4" /><path d="M12 16h4" /><path d="M8 11h.01" /><path d="M8 16h.01" />
-        </symbol>
-        <symbol id="i-users" viewBox="0 0 24 24">
-          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-          <circle cx="9" cy="7" r="4" />
-          <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-        </symbol>
-        <symbol id="i-clock" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </symbol>
-        <symbol id="i-history" viewBox="0 0 24 24">
-          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-          <path d="M3 3v5h5" />
-          <path d="M12 7v5l4 2" />
-        </symbol>
-        <symbol id="i-route" viewBox="0 0 24 24">
-          <circle cx="6" cy="19" r="3" />
-          <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" />
-          <circle cx="18" cy="5" r="3" />
-        </symbol>
-        <symbol id="i-search-check" viewBox="0 0 24 24">
-          <path d="m8 11 2 2 4-4" />
-          <circle cx="11" cy="11" r="8" />
-          <path d="m21 21-4.3-4.3" />
-        </symbol>
-        <symbol id="i-user" viewBox="0 0 24 24">
-          <circle cx="12" cy="8" r="5" />
-          <path d="M20 21a8 8 0 0 0-16 0" />
-        </symbol>
-        <symbol id="i-voice" viewBox="0 0 24 24">
-          <path d="M11 4.7a.7.7 0 0 0-1.2-.5L6.4 7.6a1.4 1.4 0 0 1-1 .4H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.4a1.4 1.4 0 0 1 1 .4l3.4 3.4a.7.7 0 0 0 1.2-.5z" />
-          <path d="M16 9a5 5 0 0 1 0 6" />
-          <path d="M19.4 18.4a9 9 0 0 0 0-12.7" />
-        </symbol>
-        <symbol id="i-consent" viewBox="0 0 24 24">
-          <path d="m9 11 3 3L22 4" />
-          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-        </symbol>
-      </defs>
-    </svg>
-
-    <a class="skip-link" href="#main">본문으로 바로가기</a>
+    <a class="skip-link" href="#main">본문으로 건너뛰기</a>
 
     <header class="site-header" data-header>
-      <div class="container header-inner">
-        <a class="brand" href="#top" aria-label="Q-Story 홈">
-          <span class="logo-frame logo-frame--paper" aria-hidden="true">
-            <img src="/assets/q-story-logo.svg" alt="" width="44" height="46" />
-          </span>
-          <span class="brand-lockup">
-            <span class="wordmark"><strong>Q</strong>-Story</span>
-            <span class="brand-slogan">AI 시대, 스스로 묻는 아이로 자라게</span>
-          </span>
+      <div class="header-bar">
+        <a class="header-logo" href="#top" aria-label="Q-Story 홈">
+          <img src="/assets/qstory-logo.png" alt="Q-Story" width="113" height="38" />
         </a>
-
-        <nav class="desktop-nav" aria-label="주요 메뉴">
-          <a href="#experience">Q-Story란</a>
-          <a href="#difference">장면 변화</a>
-          <a href="#trust">안심 설계</a>
-          <a href="#beta">베타 안내</a>
-          <a href="#faq">FAQ</a>
+        <nav class="header-nav" aria-label="주요 메뉴">
+          <a href="#about">Q-Story 소개</a>
+          <a href="#how">이용방법</a>
+          <a href="#faq">자주 묻는 질문</a>
+          <a href="#together">함께하기</a>
         </nav>
-
-        <a class="button button--small button--gold header-cta" data-player-link data-cta-location="header" href="#beta">
-          무료 체험
-        </a>
-      </div>
-      <nav class="mobile-section-nav" aria-label="페이지 섹션 바로가기">
-        <div class="container">
-          <a href="#experience">Q-Story란</a>
-          <a href="#difference">장면 변화</a>
-          <a href="#trust">안심 설계</a>
-          <a href="#beta">베타 안내</a>
-          <a href="#faq">FAQ</a>
+        <div class="header-actions">
+          <a class="btn-outline-sm" data-app-login data-cta-location="header-login" href="https://demo.qstory.ai.kr/login">로그인/회원가입</a>
+          <a class="btn-fill-sm" data-player-link data-cta-location="header" href="#start">무료로 체험하기</a>
+          <button class="menu-button" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="site-menu" data-menu-button>
+            <svg viewBox="0 0 22 16" aria-hidden="true"><path d="M1 1.5h20M1 8h20M1 14.5h20" /></svg>
+          </button>
         </div>
-      </nav>
+      </div>
+      <div class="site-menu" id="site-menu" hidden data-menu>
+        <nav aria-label="전체 메뉴">
+          <a href="#about">Q-Story 소개</a>
+          <a href="#how">이용방법</a>
+          <a href="#faq">자주 묻는 질문</a>
+          <a href="#together">함께하기</a>
+          <a href="/partner" data-partner-link data-cta-location="menu-partner">협업 문의하기</a>
+        </nav>
+        <div class="site-menu-actions">
+          <a class="btn-outline-sm" data-app-login data-cta-location="menu-login" href="https://demo.qstory.ai.kr/login">로그인/회원가입</a>
+          <a class="btn-fill-sm" data-player-link data-cta-location="menu" href="#start">무료로 체험하기</a>
+        </div>
+      </div>
     </header>
 
     <main id="main">
+      <!-- 1. 첫 화면 -->
       <section class="hero" id="top" aria-labelledby="hero-title">
-        <div class="hero-stars" aria-hidden="true"></div>
-        <div class="hero-glow" aria-hidden="true"></div>
-        <div class="container hero-grid">
-          <div class="hero-copy">
+        <div class="stage hero-stage">
+          <h1 id="hero-title" class="hero-title">AI 시대, 스스로 묻는 아이로 자라게</h1>
+          <p class="hero-sub">아이의 질문에 동화 속 캐릭터가 반응하는 인터랙티브 AI 동화</p>
+          <div class="hero-visual">
             <img
-              class="hero-copy-art"
-              src="/assets/q-story-hero-question-book.webp"
-              alt=""
-              width="1024"
-              height="1024"
-              aria-hidden="true"
-              decoding="async"
+              class="hero-tablet"
+              src="/assets/hero-tablet.webp"
+              alt="태블릿 화면 속 헨젤과 그레텔이 숲길에서 하얀 새를 바라보는 장면"
+              width="1240"
+              height="650"
             />
-            <p class="hero-chip">
-              <svg class="icon" aria-hidden="true"><use href="#i-sparkles" /></svg>
-              6–9세 아이와 부모가 함께하는 AI 동화
-            </p>
-            <h1 id="hero-title">
-              아이의 질문과 선택으로,<br />
-              <span>동화의 중간 장면이 달라져요.</span>
-            </h1>
-            <p class="hero-lead">
-              아이의 질문·추측·제안이 동화 속 행동으로 이어집니다.
-              중요한 사건과 결말은 안전하게 이어져요.
-            </p>
-            <div class="hero-actions">
-              <a class="button button--gold button--large" data-player-link data-cta-location="hero" href="#beta">
-                무료로 한 편 체험하기
-                <svg class="icon" aria-hidden="true"><use href="#i-arrow" /></svg>
-              </a>
-              <a class="text-link" href="#experience">Q-Story 체험 방식 보기</a>
-            </div>
-            <ul class="hero-facts" aria-label="체험 핵심 정보">
-              <li><svg class="icon" aria-hidden="true"><use href="#i-check" /></svg>무료 · 회원가입 없음</li>
-              <li><svg class="icon" aria-hidden="true"><use href="#i-check" /></svg>질문 방식에 따라 체험 시간 달라짐</li>
-              <li><svg class="icon" aria-hidden="true"><use href="#i-check" /></svg>말·글 모두 가능</li>
-            </ul>
-            <p class="cta-status" data-cta-status role="status" aria-live="polite"></p>
+            <p class="glass-bubble glass-bubble--right">헨젤은 왜 숲에 들어갔을까?</p>
+            <p class="glass-bubble glass-bubble--left">저 하얀 새가 궁금해!</p>
           </div>
-
-          <div class="hero-visual" aria-label="아이의 말로 달라지는 헨젤과 그레텔 체험 예시">
-            <div class="storybook">
-              <img
-                class="storybook-image"
-                src="/assets/hansel-gretel-hero.webp"
-                alt="숲속에서 과자집을 발견한 헨젤과 그레텔"
-                width="1600"
-                height="960"
-              />
-              <div class="storybook-caption">
-                <span class="speaker">그레텔</span>
-                <p>이 집, 바로 들어가도 괜찮을까? 네 생각을 들려줄래?</p>
-              </div>
-            </div>
-            <div class="question-bubble">
-              <span class="bubble-icon" aria-hidden="true">
-                <svg class="icon"><use href="#i-mic" /></svg>
-              </span>
-              “창문부터 살펴보자!”
-            </div>
-            <div class="change-note">
-              <svg class="icon" aria-hidden="true"><use href="#i-sparkles" /></svg>
-              질문과 선택으로 중간 장면이 달라져요
-            </div>
-          </div>
+          <a class="btn-cta hero-cta" data-player-link data-cta-location="hero" href="#start">
+            무료로 체험하기
+            <svg class="arrow" viewBox="0 0 12 10" aria-hidden="true"><path d="M0 5h11M7 1l4 4-4 4" /></svg>
+          </a>
+          <p class="cta-status" data-cta-status aria-live="polite"></p>
         </div>
       </section>
 
-      <section class="experience section section--lavender" id="experience" aria-labelledby="experience-title">
-        <div class="container">
-          <div class="section-heading section-heading--center reveal">
-            <p class="eyebrow">Q-Story란</p>
-            <h2 id="experience-title">보기만 하던 동화에서,<br class="br-mobile" /> 아이가 참여하는 이야기로</h2>
-            <p>함께 듣다가 아이의 생각을 들려주면, 그 말이 장면 속 행동으로 이어집니다.</p>
+      <!-- 2. Q-Story 소개 -->
+      <section class="about" id="about" aria-labelledby="about-title">
+        <div class="stage about-stage">
+          <div class="about-copy">
+            <h2 id="about-title" class="h1">답을 찾는 것보다, <br />질문을 시작하는 경험</h2>
+            <p class="about-lead">AI가 빠르게 답을 만들어주는 시대, <br />아이에게는 무엇이 궁금한지 발견하고 <br />자신의 생각을 표현해 보는 경험이 중요합니다.</p>
           </div>
-
-          <ol class="steps steps--core">
-            <li class="step reveal">
-              <span class="step-number">01 · LISTEN</span>
-              <span class="step-icon" aria-hidden="true"><svg class="icon"><use href="#i-voice" /></svg></span>
-              <h3>동화를 함께 들어요</h3>
-              <p>삽화·캐릭터 낭독·자막과 함께 헨젤과 그레텔의 이야기를 따라가요.</p>
-            </li>
-            <li class="step step--featured reveal">
-              <span class="step-number">02 · SPEAK</span>
-              <span class="step-icon" aria-hidden="true"><svg class="icon"><use href="#i-mic" /></svg></span>
-              <h3>생각을 자유롭게 말해요</h3>
-              <p>질문하거나, 걱정되는 점과 해 보고 싶은 일을 말이나 글로 들려줘요.</p>
-            </li>
-            <li class="step reveal">
-              <span class="step-number">03 · CHANGE</span>
-              <span class="step-icon" aria-hidden="true"><svg class="icon"><use href="#i-sparkles" /></svg></span>
-              <h3>달라진 장면을 확인해요</h3>
-              <p>아이의 생각이 검수된 행동과 장면으로 이어지고, 원 이야기의 결말까지 완주해요.</p>
-            </li>
-          </ol>
-
-          <ul class="experience-support reveal" aria-label="체험 지원 기능">
-            <li><svg class="icon" aria-hidden="true"><use href="#i-user" /></svg>아이 이름으로 초대</li>
-            <li><svg class="icon" aria-hidden="true"><use href="#i-play" /></svg>자막·다시 듣기·이어 듣기</li>
-            <li><svg class="icon" aria-hidden="true"><use href="#i-pencil" /></svg>글로 질문하거나 건너뛰기</li>
-            <li><svg class="icon" aria-hidden="true"><use href="#i-report" /></svg>완주 뒤 부모 리포트</li>
+          <p class="note about-note">
+            AI 시대에는 인간의 주도적 판단과 비판적 사고가 중요합니다. WEF는 호기심과 평생학습을 미래 사회의 주요 역량 중 하나로 제시합니다. <br />
+            <span>UNESCO (2024) · WEF (2025)</span>
+          </p>
+          <svg class="about-link" viewBox="0 0 168 281" aria-hidden="true"><path d="M2 2 C 150 70, 150 210, 2 279" /></svg>
+          <ul class="bubbles" aria-label="질문이 자라는 세 단계">
+            <li class="bubble bubble--blue"><span>발견</span><strong>“이건 왜 그럴까?”</strong></li>
+            <li class="bubble bubble--pink"><span>표현</span><strong>“나는 이렇게 생각해”</strong></li>
+            <li class="bubble bubble--green"><span>탐색</span><strong>“그럼 이렇게 해볼까?</strong></li>
           </ul>
         </div>
       </section>
 
-      <section class="difference section" id="difference" aria-labelledby="difference-title">
-        <div class="container difference-grid">
-          <div class="difference-copy reveal">
-            <p class="eyebrow">아이의 말이 닿는 순간</p>
-            <h2 id="difference-title">아이의 “왜?”와<br class="br-mobile" /> “이렇게 해 보자”가<br />장면 속 행동이 돼요.</h2>
-            <p class="difference-lead">
-              질문뿐 아니라 추측, 경고, 거절, 해 보고 싶은 방법도 받아들입니다.
-              아이가 말한 뜻을 먼저 확인하고 가능한 변화로 보여 줍니다.
-            </p>
-            <ol class="proof-points">
-              <li><span>01</span><strong>자유롭게 말해요</strong><p>완벽한 문장이나 정답은 필요 없어요.</p></li>
-              <li><span>02</span><strong>말뜻을 확인해요</strong><p>다시 말하거나 글로 고칠 수 있어요.</p></li>
-              <li><span>03</span><strong>장면으로 확인해요</strong><p>변화 뒤에는 원 이야기로 자연스럽게 돌아와요.</p></li>
-            </ol>
-          </div>
-
-          <div class="difference-visual reveal" aria-label="아이의 말이 장면으로 이어지는 과정">
-            <div class="scene-card scene-card--question">
-              <p class="scene-label">
-                <svg class="icon" aria-hidden="true"><use href="#i-mic" /></svg>
-                아이의 생각
-              </p>
-              <blockquote>“저 할머니, 조금 수상해.<br />창문부터 살펴보자.”</blockquote>
-            </div>
-            <div class="path-line" aria-hidden="true"></div>
-            <div class="scene-card scene-card--confirm">
-              <p class="scene-label">
-                <svg class="icon" aria-hidden="true"><use href="#i-search-check" /></svg>
-                이렇게 들었어요
-              </p>
-              <p>“들어가기 전에 창문을 먼저 살펴보자.”</p>
-            </div>
-            <div class="path-line" aria-hidden="true"><span></span></div>
-            <div class="scene-card scene-card--result">
-              <p class="scene-label">
-                <svg class="icon" aria-hidden="true"><use href="#i-sparkles" /></svg>
-                달라진 장면
-              </p>
-              <p>그레텔이 고개를 끄덕이고, 남매는 집에 들어가기 전 창문을 살펴봐요.</p>
-              <span class="result-tag">아이의 제안을 바로 반영</span>
-            </div>
+      <!-- 3. 보고 듣는 이야기 -->
+      <section class="story" aria-labelledby="story-title">
+        <div class="stage story-stage">
+          <h2 id="story-title" class="h1 center story-title">보고 듣는 이야기 속에, <br />아이의 말이 들어갈 자리가 있나요?</h2>
+          <p class="lead center story-lead">이야기를 듣다보면 아이에게도 문득 궁금한 것이 생깁니다. <br />그 작은 궁금증을 그냥 지나치지 않고, 자신의 생각으로 꺼내볼 수 있다면 어떨까요?</p>
+          <p class="note center story-note">5,100명의 아동 자료를 분석한 연구에서는 미디어 시청 중 부모와의 <br />대화 빈도가 높을수록 이후 호기심 점수가 높은 경향이 나타났습니다. <br /><span>Shah et al., 2021 · PLOS ONE</span></p>
+          <div class="story-scene">
+            <img class="story-kid" src="/assets/s3-kid.webp" alt="턱을 괴고 생각하는 아이" width="289" height="326" loading="lazy" />
+            <img class="story-mom" src="/assets/s3-mom.webp" alt="턱을 괴고 고민하는 엄마" width="311" height="477" loading="lazy" />
+            <p class="soft-pill story-pill story-pill--main">아이의 말에 어떻게 반응하지?</p>
+            <p class="soft-pill story-pill story-pill--mid">대화를 시작하기 어려워.</p>
+            <p class="soft-pill story-pill story-pill--kid">나라면 어떻게 했을까?</p>
           </div>
         </div>
       </section>
 
-      <section class="trust section" id="trust" data-beta-voice-storage="optional-consent" aria-labelledby="trust-title">
-        <div class="container trust-layout">
-          <div class="trust-copy reveal">
-            <p class="eyebrow">부모가 안심할 수 있도록</p>
-            <h2 id="trust-title">자유롭게 말해도,<br />이야기는 안전하게 이어져요.</h2>
-            <p class="trust-lead">
-              Q-Story는 자유 대화 챗봇이 아닙니다. 현재 장면과 미리 검수한 범위 안에서만
-              아이의 말을 반영하고, 중요한 사건과 결말은 지킵니다.
-            </p>
-            <aside class="parent-note" aria-label="보호자에게 드리는 안내">
-              <span class="parent-note-kicker">보호자에게</span>
-              <h3>완벽한 문장이 아니어도 괜찮아요.</h3>
-              <p>조금 기다려 주고 “어떤 점이 궁금했어?”라고 한 번 더 물어봐 주세요.</p>
-            </aside>
-          </div>
-
-          <div class="trust-pillars reveal">
-            <div class="pillar">
-              <span class="pillar-icon" aria-hidden="true"><svg class="icon"><use href="#i-shield" /></svg></span>
-              <div><strong>검수된 안전한 변화</strong><p>위험한 방향은 부드럽게 전환하고, 가능한 행동만 장면으로 보여 줘요.</p></div>
-            </div>
-            <div class="pillar">
-              <span class="pillar-icon" aria-hidden="true"><svg class="icon"><use href="#i-retry" /></svg></span>
-              <div><strong>실패해도 끝까지</strong><p>음성 인식이나 연결이 불안하면 다시 시도하거나 그대로 계속 들을 수 있어요.</p></div>
-            </div>
-            <div class="pillar">
-              <span class="pillar-icon" aria-hidden="true"><svg class="icon"><use href="#i-consent" /></svg></span>
-              <div><strong>원음 연구 저장은 선택</strong><p>보호자가 체크한 경우에만 질문 원음과 확인된 문장을 90일간 보관해요. 동의하지 않아도 체험할 수 있어요.</p></div>
-            </div>
-          </div>
+      <!-- 4. 작은 '왜?'가 대화로 -->
+      <section class="dialog" aria-labelledby="dialog-title">
+        <div class="stage dialog-stage">
+          <svg class="dialog-ribbon" viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M802 363 C 905 368 995 384 1050 410 C 1205 470 1290 560 1263 655 C 1240 760 1150 850 1069 900 L 420 900 C 470 820 720 640 866 492 C 840 440 790 405 758 410 C 770 385 785 368 802 363 Z" />
+          </svg>
+          <h2 id="dialog-title" class="h1 dialog-title">아이의 작은 ‘왜?’가 <br />이야기 속 작은 대화로 이어지도록</h2>
+          <ol class="dialog-steps">
+            <li class="dialog-pill dialog-pill--1">동화가 대화의 맥락을 만들고</li>
+            <li class="dialog-pill dialog-pill--2">아이가 궁금한 것을 말하면</li>
+            <li class="dialog-pill dialog-pill--3">캐릭터가 반응하며 대화가 이어져요</li>
+          </ol>
+          <img class="dialog-book" src="/assets/s4-book.webp" alt="숲과 다리가 솟아오르는 펼쳐진 동화책" width="274" height="274" loading="lazy" />
+          <img class="dialog-boy" src="/assets/s4-boy.webp" alt="손가락으로 무언가를 가리키며 묻는 아이" width="232" height="269" loading="lazy" />
+          <img class="dialog-hansel" src="/assets/s4-hansel.webp" alt="손을 내밀며 대답하는 헨젤" width="518" height="514" loading="lazy" />
+          <p class="note note--light dialog-note">동화 읽기는 아이가 등장인물의 행동을 예측하고, <br />사건의 이유를 궁금해하며 자신의 생각을 표현하는 기회가 됩니다. <br /><span>Moschovaki &amp; Meadows (2005) · Frazier et al. (2009)</span></p>
         </div>
       </section>
 
-      <section class="beta section section--cream" id="beta" data-duration-disclosure="variable" aria-labelledby="beta-title">
-        <div class="container beta-grid">
-          <div class="beta-copy reveal">
-            <p class="eyebrow">Q-Story 1차 공개 베타</p>
-            <h2 id="beta-title">아이와 한 편을 완주하고,<br />느낀 점을 들려주세요.</h2>
-            <p>
-              「헨젤과 그레텔」을 무료로 체험하고, 완주 뒤 1분 후기로 솔직한 경험을 나눠 주세요.
-            </p>
-            <ul class="beta-quick-facts" aria-label="체험 전 핵심 정보">
-              <li><svg class="icon" aria-hidden="true"><use href="#i-users" /></svg><span><strong>6–9세 아이와 보호자</strong>함께 보고 들어요</span></li>
-              <li><svg class="icon" aria-hidden="true"><use href="#i-clock" /></svg><span><strong>질문 방식에 따라 시간이 달라져요</strong>함께 한 편을 완주해요</span></li>
-              <li><svg class="icon" aria-hidden="true"><use href="#i-report" /></svg><span><strong>완주 뒤 부모 리포트</strong>질문과 변화를 확인해요</span></li>
-            </ul>
-            <p class="beta-feedback">
-              <svg class="icon" aria-hidden="true"><use href="#i-sparkles" /></svg>
-              여러분의 1분 후기가 다음 동화와 체험 방식을 결정하는 데 쓰여요.
-            </p>
-            <a class="button button--violet button--large button--full" data-player-link data-cta-location="beta" href="#beta">
-              무료로 한 편 체험하기
-              <svg class="icon" aria-hidden="true"><use href="#i-arrow" /></svg>
-            </a>
-            <p class="beta-note">무료 · 회원가입 없음 · 질문하지 않아도 결말까지 감상 가능</p>
-          </div>
-
-          <div class="beta-showcase reveal" aria-label="체험 화면과 부모 리포트 미리보기">
-            <figure class="beta-story-frame">
-              <img
-                src="/assets/hansel-gretel-parent-talk.webp"
-                alt="헨젤과 그레텔이 아버지와 식탁에서 이야기를 나누는 장면"
-                width="1584"
-                height="960"
-                loading="lazy"
-              />
-              <figcaption><span>체험 화면</span> 아이의 질문으로 이어진 밤의 대화</figcaption>
-            </figure>
-            <article class="report-preview">
-              <header>
-                <span class="report-icon" aria-hidden="true"><svg class="icon"><use href="#i-report" /></svg></span>
-                <p>부모 리포트 미리보기</p>
-                <span class="report-badge">완주 후</span>
-              </header>
-              <h3>오늘 아이는<br />먼저 살펴보는 방법을 제안했어요.</h3>
-              <blockquote>“창문부터 살펴보자!”</blockquote>
-              <p>아이의 질문과 실제로 달라진 장면을 한눈에 확인하고, 대화를 이어갈 질문도 받아보세요.</p>
+      <!-- 5. 아이의 질문이 있는 시간 -->
+      <section class="moments" aria-labelledby="moments-title">
+        <div class="stage moments-stage">
+          <h2 id="moments-title" class="h1 center">아이의 질문이 있는 시간</h2>
+          <p class="lead lead--muted center moments-lead">동화 속에서 시작된 대화는 아이를 알아가는 경험으로 이어집니다.</p>
+          <div class="moment-cards">
+            <article class="moment-card moment-card--green">
+              <h3>아이에게는 말해보는 즐거움</h3>
+              <p>궁금한 것을 질문하고, 자신의 생각을 표현하고, <br />또 다른 가능성을 상상하는 경험</p>
+              <img src="/assets/s5-child.webp" alt="태블릿 속 동화를 손가락으로 가리키며 웃는 아이" width="520" height="284" loading="lazy" />
+            </article>
+            <article class="moment-card moment-card--blue">
+              <h3>어른에게는 생각을 발견하는 기회</h3>
+              <p>아이의 관심사와 표현을 살펴보고, <br />함께 이야기할 새로운 주제를 발견하는 경험</p>
+              <img src="/assets/s5-parent.webp" alt="소파에서 아이와 함께 태블릿 동화를 보는 엄마" width="508" height="284" loading="lazy" />
+              <p class="note note--xs">9편의 질적 연구를 종합한 연구에서는 부모와 아이가 함께 책을 읽는 데 시간 부족, <br />독서 관련 지식과 기술의 부족 등이 장벽으로 작용한다는 점을 확인했습니다. <br />Nan &amp; Tian, 2025</p>
             </article>
           </div>
         </div>
       </section>
 
-      <section class="faq section" id="faq" aria-labelledby="faq-title">
-        <div class="container faq-grid">
-          <div class="faq-heading reveal">
-            <p class="eyebrow">자주 묻는 질문</p>
-            <h2 id="faq-title">체험 전,<br />궁금한 점을 확인하세요.</h2>
+      <!-- 6. 이용방법 -->
+      <section class="how" id="how" aria-labelledby="how-title">
+        <div class="stage how-stage">
+          <h2 id="how-title" class="h1 center">읽고, 묻고, 이야기를 이어가요</h2>
+          <div class="how-tabs" role="tablist" aria-label="이용 단계">
+            <button class="how-tab" type="button" role="tab" id="how-tab-1" aria-controls="how-panel-1" aria-selected="true">01. 이야기 만나기</button>
+            <button class="how-tab" type="button" role="tab" id="how-tab-2" aria-controls="how-panel-2" aria-selected="false" tabindex="-1">02. 질문하고 대화하기</button>
+            <button class="how-tab" type="button" role="tab" id="how-tab-3" aria-controls="how-panel-3" aria-selected="false" tabindex="-1">03. 생각 돌아보기</button>
           </div>
-          <div class="accordion reveal">
-            <details open>
-              <summary>무료로 체험할 수 있나요? 어떤 동화가 있나요?<span aria-hidden="true"></span></summary>
+
+          <div class="how-panel how-panel--1" id="how-panel-1" role="tabpanel" aria-labelledby="how-tab-1">
+            <div class="story-card" aria-hidden="true">
+              <span class="chip">고전동화</span>
+              <strong>헨젤과 그레텔</strong>
+              <p>길을 잃은 남매가 서로에게 묻고 답하며 숲을 되돌아 나오는 이야기예요.</p>
+              <span class="story-card-start">이야기 시작하기</span>
+              <span class="story-card-saved"><svg viewBox="0 0 12 10"><path d="M1 5l3.2 3L11 1" /></svg>저장됨</span>
+            </div>
+            <img class="how-house" src="/assets/s6-house.webp" alt="숲속 과자집" width="345" height="599" loading="lazy" />
+            <figure class="how-scene">
+              <img src="/assets/s6-scene.webp" alt="식탁에 앉아 걱정하는 헨젤과 그레텔의 부모" width="345" height="416" loading="lazy" />
+              <figcaption class="note note--xs note--light">117명의 아동을 대상으로 한 연구에서, 질문과 대화를 함께하는 독서는 <br />일방향 독서보다 이야기 이해에 긍정적인 효과를 보였습니다. <br />Xu et al., 2022</figcaption>
+            </figure>
+            <div class="how-caption how-caption--1">
+              <h3>마음에 드는 동화를 골라요</h3>
+              <p>흥미로운 동화를 만나고 이야기 속 장면을 살펴보세요.</p>
+            </div>
+          </div>
+
+          <div class="how-panel how-panel--2" id="how-panel-2" role="tabpanel" aria-labelledby="how-tab-2" hidden>
+            <div class="how-caption how-caption--2">
+              <h3>궁금한 순간, 자유롭게 말해요.</h3>
+              <p>아이의 질문에 이야기 속 캐릭터가 반응하며 대화를 이어갑니다.</p>
+            </div>
+            <div class="chat-card" aria-hidden="true">
+              <p class="chat chat--child">헨젤, 나 궁금한 게 생겼어.</p>
+              <p class="chat chat--hansel">응, 무슨 이야기가 하고 싶어?</p>
+              <p class="chat chat--typing chat--typing-r"><span></span><span></span><span></span></p>
+              <p class="chat chat--typing chat--typing-l"><span></span><span></span><span></span></p>
+              <div class="chat-bar"><span>글쓰기</span><span class="is-on">말하기</span><span>이야기 계속 듣기</span></div>
+            </div>
+            <img class="chat-avatar chat-avatar--lg" src="/assets/s6-avatar-lg.webp" alt="" width="159" height="159" loading="lazy" />
+            <img class="chat-avatar chat-avatar--sm" src="/assets/s6-avatar-sm.webp" alt="" width="112" height="112" loading="lazy" />
+          </div>
+
+          <div class="how-panel how-panel--3" id="how-panel-3" role="tabpanel" aria-labelledby="how-tab-3" hidden>
+            <div class="report-shot report-shot--a"><img src="/assets/s6-report-a.webp" alt="아이가 남긴 말과 캐릭터의 답을 장면별로 모은 리포트 화면" width="554" height="293" loading="lazy" /></div>
+            <img class="report-shot report-shot--b" src="/assets/s6-report-b.webp" alt="이번에 드러난 관심과 생각을 정리한 리포트 화면" width="602" height="354" loading="lazy" />
+            <div class="how-caption how-caption--3">
+              <h3>어떤 생각을 나누었는지 돌아봐요.</h3>
+              <p>질문과 대화를 되돌아보며 아이의 관심사를 살펴봅니다.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. 시작 -->
+      <section class="start" id="start" aria-labelledby="start-title">
+        <div class="stage start-stage">
+          <h2 id="start-title" class="h1 center">우리 아이의 첫 질문, <br />Q-Story에서 시작해 볼까요?</h2>
+          <p class="lead lead--muted center start-lead">동화 속에서 시작된 대화는 아이를 알아가는 경험으로 이어집니다.</p>
+          <a class="btn-cta start-cta" data-player-link data-cta-location="start" href="#start">
+            무료로 체험하기
+            <svg class="arrow" viewBox="0 0 12 10" aria-hidden="true"><path d="M0 5h11M7 1l4 4-4 4" /></svg>
+          </a>
+        </div>
+      </section>
+
+      <!-- 8. 자주 묻는 질문 -->
+      <section class="faq" id="faq" aria-labelledby="faq-title">
+        <div class="stage faq-stage">
+          <h2 id="faq-title" class="h1 center faq-title">자주 묻는 질문</h2>
+          <div class="faq-list">
+            <details>
+              <summary>무료로 체험할 수 있나요? 어떤 동화가 있나요?</summary>
               <p>현재 공개 체험은 무료예요. 앱 설치나 회원가입 없이 「헨젤과 그레텔」 한 편을 시작할 수 있어요.</p>
             </details>
             <details>
-              <summary>몇 살 아이와 함께 보면 좋을까요?<span aria-hidden="true"></span></summary>
+              <summary>몇 살 아이와 함께 보면 좋을까요?</summary>
               <p>유아와 초등학교 저학년의 질문·표현 경험을 중심으로 기획하고 있어요. 처음에는 보호자나 선생님이 함께 보면서 줄거리와 조작이 아이에게 맞는지 확인해주세요. 적합한 난이도는 아이의 이해와 말하기 방식에 따라 다를 수 있어요.</p>
             </details>
             <details>
-              <summary>동화 영상이나 오디오북과 무엇이 다른가요?<span aria-hidden="true"></span></summary>
+              <summary>동화 영상이나 오디오북과 무엇이 다른가요?</summary>
               <p>같은 이야기를 보면서 등장인물에게 질문하고, 아이의 느낌이나 생각을 들려줄 수 있어요. 캐릭터가 그 말에 반응하고, 일부 준비된 장면에서는 아이의 제안이 다른 전개로 이어져요. 질문과 대화는 체험 뒤 다시 돌아볼 수 있어요.</p>
             </details>
             <details>
-              <summary>부모나 선생님이 계속 읽어줘야 하나요?<span aria-hidden="true"></span></summary>
+              <summary>부모나 선생님이 계속 읽어줘야 하나요?</summary>
               <p>낭독은 Q-Story가 제공해요. 처음에는 곁에서 조작을 도와주고, 아이가 어떤 장면에 관심을 보이는지 함께 봐주세요. 모든 질문에 답을 준비할 필요는 없어요. 아이가 말하면 먼저 듣고, 궁금한 순간에는 잠시 멈춰 함께 이야기해보세요.</p>
             </details>
             <details>
-              <summary>아이가 바로 질문하지 않아도 괜찮나요?<span aria-hidden="true"></span></summary>
+              <summary>아이가 바로 질문하지 않아도 괜찮나요?</summary>
               <p>질문에 정해진 정답은 없어요. “무서워”, “나라면 기다릴래” 같은 느낌과 생각도 말할 수 있어요. 아직 말하고 싶지 않다면 질문 초대를 건너뛰고 이야기를 계속 들어도 괜찮아요.</p>
             </details>
             <details>
-              <summary>사용하면 질문 능력이 좋아지나요?<span aria-hidden="true"></span></summary>
+              <summary>사용하면 질문 능력이 좋아지나요?</summary>
               <p>Q-Story는 아이가 궁금한 것을 묻고 자기 생각을 표현할 기회를 만드는 데 초점을 두고 있어요. 선행연구를 설계에 참고하고 있지만, Q-Story를 사용한 뒤 질문 능력이 얼마나 달라지는지는 앞으로 비교 연구와 반복 사용을 통해 검증해야 해요.</p>
             </details>
             <details>
-              <summary>AI 캐릭터의 답을 그대로 믿어도 되나요?<span aria-hidden="true"></span></summary>
+              <summary>AI 캐릭터의 답을 그대로 믿어도 되나요?</summary>
               <p>AI가 아이의 말을 잘못 이해하거나 부정확하게 답할 수 있어요. 캐릭터의 답은 동화 속 대화로 받아들이고, 실제 사실 확인이 필요한 내용은 어른과 함께 살펴봐주세요. 이상한 반응이나 오류가 있다면 팀에 알려주세요.</p>
             </details>
             <details>
-              <summary>어떤 기기에서 이용하나요? 글을 몰라도 괜찮나요?<span aria-hidden="true"></span></summary>
+              <summary>어떤 기기에서 이용하나요? 글을 몰라도 괜찮나요?</summary>
               <p>웹 브라우저에서 그림과 낭독을 보며 체험해요. 읽기에 익숙하지 않아도 성인과 함께 이야기 흐름을 따라갈 수 있어요. 말로 대화할 때는 마이크 권한이 필요하고, 음성이 잘 인식되지 않으면 어른이 글 입력을 도와줄 수 있어요.</p>
             </details>
             <details>
-              <summary>읽은 뒤 부모나 선생님은 무엇을 볼 수 있나요?<span aria-hidden="true"></span></summary>
+              <summary>읽은 뒤 부모나 선생님은 무엇을 볼 수 있나요?</summary>
               <p>읽은 이야기와 아이가 남긴 질문·대화를 리포트에서 돌아볼 수 있어요. 무엇에 관심을 보였는지 실제 발화를 함께 살펴보는 기록이에요. 아이의 성격이나 발달 수준을 진단하는 검사는 아니며, 표시되는 항목은 이용 방식에 따라 달라질 수 있어요.</p>
             </details>
             <details>
-              <summary>아이의 질문과 사용 기록은 어떻게 처리되나요?<span aria-hidden="true"></span></summary>
+              <summary>아이의 질문과 사용 기록은 어떻게 처리되나요?</summary>
               <p>현재 공개 베타의 시작 화면은 확인한 질문 문장에서 이름·연락처를 가린 뒤 서비스 개선을 위해 1년 보관하고, 화면 사용 기록은 90일 보관한다고 안내해요. 음성은 문장으로 바꾼 뒤 확인하고 전송해요. 이용 전에는 체험 시작 화면의 최신 데이터 안내를 먼저 확인해주세요.</p>
             </details>
           </div>
         </div>
       </section>
 
-      <section class="final-cta" aria-labelledby="final-title">
-        <div class="final-art" aria-hidden="true">
-          <img src="/assets/q-story-question-sky.webp" alt="" width="1920" height="1080" loading="lazy" />
-        </div>
-        <div class="container final-cta-inner reveal">
-          <div class="final-cta-copy">
-            <p class="eyebrow eyebrow--gold">AI 시대, 스스로 묻는 아이로 자라게</p>
-            <h2 id="final-title">오늘 밤, 아이와 함께<br /> 질문이 움직이는 동화를 시작해 보세요.</h2>
-            <p class="final-cta-lead">「헨젤과 그레텔」 한 편을 무료로 체험할 수 있어요.</p>
-            <a class="button button--gold button--large" data-player-link data-cta-location="final" href="#beta">
-              무료로 한 편 체험하기
-              <svg class="icon" aria-hidden="true"><use href="#i-arrow" /></svg>
-            </a>
+      <!-- 9. 함께하기 -->
+      <section class="together" id="together" aria-labelledby="together-title">
+        <div class="stage together-stage">
+          <h2 id="together-title" class="h1 center">더 많은 이야기와 질문을, <br />함께 만들어가요.</h2>
+          <p class="lead lead--muted center together-lead">동화 속에서 시작된 대화는 아이를 알아가는 경험으로 이어집니다.</p>
+          <div class="together-cards">
+            <article class="together-card together-card--pink">
+              <h3>
+                <img src="/assets/icon-building.png" alt="" width="22" height="19" />
+                교육 현장과 함께
+              </h3>
+              <p>학교, 유치원, 교육기관에서 아이들의 질문과 대화를 <br />활용하는 방법을 함께 탐색합니다.</p>
+            </article>
+            <article class="together-card together-card--blue">
+              <h3>
+                <img src="/assets/icon-users.png" alt="" width="29" height="29" />
+                콘텐츠 파트너와 함께
+              </h3>
+              <p>출판사와 창작자의 이야기가 새로운 <br />인터랙티브 경험으로 확장될 가능성을 논의합니다.</p>
+            </article>
           </div>
+          <a class="btn-cta together-cta" href="/partner" data-partner-link data-cta-location="together">
+            협업 문의하기
+            <svg class="arrow" viewBox="0 0 12 10" aria-hidden="true"><path d="M0 5h11M7 1l4 4-4 4" /></svg>
+          </a>
         </div>
       </section>
     </main>
 
     <footer class="site-footer">
-      <div class="container footer-main">
-        <a class="brand brand--dark" href="#top" aria-label="Q-Story 홈">
-          <span class="logo-frame logo-frame--paper" aria-hidden="true">
-            <img src="/assets/q-story-logo.svg" alt="" width="44" height="46" />
-          </span>
-          <span class="brand-lockup">
-            <span class="wordmark"><strong>Q</strong>-Story</span>
-            <span class="brand-slogan">AI 시대, 스스로 묻는 아이로 자라게</span>
-          </span>
-        </a>
-        <p>아이의 질문을 달라지는 중간 장면으로 이어 주는 AI 인터랙티브 동화</p>
-        <nav aria-label="하단 메뉴">
-          <a href="#experience">Q-Story란</a>
-          <a href="#difference">장면 변화</a>
-          <a href="#trust">안심 설계</a>
-          <a href="#beta">베타 안내</a>
-          <a href="#faq">FAQ</a>
-        </nav>
+      <div class="stage footer-stage">
+        <div class="footer-brand">
+          <img src="/assets/qstory-logo.png" alt="Q-Story" width="115" height="39" loading="lazy" />
+          <p>AI 시대, 스스로 묻는 아이로 자라게</p>
+        </div>
+        <div class="footer-col footer-company">
+          <h2>Company Info</h2>
+          <p>대표: 강지명</p>
+          <p>전화번호: 010-7543-6779</p>
+        </div>
+        <div class="footer-col footer-contact">
+          <h2>Contact</h2>
+          <ul>
+            <li>
+              <span class="contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3.5h3l1.5 4-2 1.2a11 11 0 0 0 5.8 5.8l1.2-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 3 5.5a2 2 0 0 1 2-2Z" /></svg></span>
+              <span><b>전화번호</b><a href="tel:010-7543-6779">010-7543-6779</a></span>
+            </li>
+            <li>
+              <span class="contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m4 7 8 6 8-6" /></svg></span>
+              <span>
+                <b>이메일</b>
+                <span class="email-line"><a href="mailto:qstoryai@gmail.com" data-email>qstoryai@gmail.com</a><button class="copy-button" type="button" data-copy-email aria-label="이메일 주소 복사">복사</button></span>
+              </span>
+            </li>
+            <li>
+              <span class="contact-icon" aria-hidden="true"><img src="/assets/icon-insta.png" alt="" width="34" height="34" /></span>
+              <span><b>인스타그램</b><a href="https://www.instagram.com/qstory.official/" target="_blank" rel="noopener">qstory.official</a></span>
+            </li>
+          </ul>
+        </div>
+        <div class="footer-bottom">
+          <div class="footer-links">
+            <button type="button" data-legal="privacy">개인정보처리방침</button>
+            <button type="button" data-legal="terms">이용약관</button>
+          </div>
+          <p class="footer-legal-note" data-legal-note aria-live="polite"></p>
+          <p class="copyright">© <span data-year>2026</span> Q-Story. All rights reserved.</p>
+        </div>
       </div>
-      <div class="container footer-bottom">
-        <p>© <span data-year></span> Q-Story. All rights reserved.</p>
-        <p>1차 공개 베타 · 보호자와 함께 이용해 주세요.</p>
-      </div>
+      <p class="copy-toast" data-copy-toast role="status" aria-live="polite"></p>
     </footer>
   </body>
 </html>
