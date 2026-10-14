@@ -1,6 +1,9 @@
+import { initIntroCircles } from './intro-circles.js';
+import { animatePanel, initMotion } from './motion.js';
 import {
   CONTACT_EMAIL,
   landingMetadata,
+  trackGaEvent,
   trackLandingEvent,
   wireCtas,
   wireEmailCopy,
@@ -12,6 +15,14 @@ wireZoom();
 wireCtas();
 wireMenu();
 wireEmailCopy();
+initMotion();
+// 소개 원 끌기 - 원 이름만, 세션당 원별 1회.
+initIntroCircles({
+  onFirstDrag: (circle) => {
+    trackLandingEvent('intro_circle_drag', { circle });
+    trackGaEvent('intro_circle_drag', { circle });
+  },
+});
 
 trackLandingEvent('landing_view', {
   page: 'landing',
@@ -50,7 +61,10 @@ const selectTab = (tab, focus = false) => {
     other.setAttribute('aria-selected', String(selected));
     other.tabIndex = selected ? 0 : -1;
     const panel = document.getElementById(other.getAttribute('aria-controls'));
-    if (panel) panel.hidden = !selected;
+    if (panel) {
+      panel.hidden = !selected;
+      if (selected) animatePanel(panel);
+    }
   });
   if (focus) tab.focus();
 };
