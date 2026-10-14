@@ -1773,6 +1773,7 @@ button {
   .dialog-title { justify-self: start; margin-bottom: 14px; }
   .dialog-steps { display: contents; }
   .dialog-pill { width: auto !important; height: auto; padding: 14px 22px !important; font-size: 16px !important; line-height: 22px !important; white-space: normal; }
+  .dialog-pill { position: relative; left: auto !important; top: auto !important; }
   .dialog-pill--1 { order: 1; }
   .dialog-book { order: 2; width: 180px; height: 180px; }
   .dialog-pill--2 { order: 3; }
@@ -1984,9 +1985,57 @@ button {
 /* 자주 묻는 질문: 펼칠 때 답이 살짝 떠오르며(화살표는 회전) */
 .js-motion .faq-list details[open] p { animation: qs-rise 0.24s ease-out; }
 
+/* 생각풍선·대화 단계: 화면에 들어올 때 한 번, 시안 순서대로(320ms 간격) - 작은 점이 톡 생기고 풍선이 떠오른다. */
+@keyframes qs-bubble-in {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+
+@keyframes qs-bubble-dot {
+  0% { opacity: 0; scale: 0.2; }
+  35% { opacity: 1; scale: 1; }
+  100% { opacity: 0; scale: 1; }
+}
+
+.js-motion .seq-pending [data-seq-item] {
+  opacity: 0;
+}
+
+.js-motion .seq-play [data-seq-item] {
+  animation: qs-bubble-in 0.42s cubic-bezier(0.2, 0.7, 0.3, 1) calc(var(--seq-delay, 0ms) + 0.12s) backwards;
+}
+
+.js-motion .seq-play [data-seq-item]::before {
+  content: '';
+  position: absolute;
+  left: 18%;
+  bottom: -14px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  animation: qs-bubble-dot 0.55s ease-out var(--seq-delay, 0ms) backwards;
+}
+
+.js-motion .seq-play .dialog-pill::before {
+  background: var(--purple-100);
+  box-shadow: 0 0 8px rgba(234, 226, 250, 0.6);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .bubble[data-circle] {
+  .bubble[data-circle],
+  [data-seq-item],
+  [data-seq-item]::before {
     animation: none !important;
+  }
+
+  .seq-pending [data-seq-item] {
+    opacity: 1 !important;
   }
 
   .bubble[data-circle],

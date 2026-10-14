@@ -1,5 +1,5 @@
 import { initIntroCircles } from './intro-circles.js';
-import { animatePanel, initMotion } from './motion.js';
+import { animatePanel, initMotion, initSequences } from './motion.js';
 import {
   CONTACT_EMAIL,
   landingMetadata,
@@ -16,6 +16,7 @@ wireCtas();
 wireMenu();
 wireEmailCopy();
 initMotion();
+initSequences();
 // 소개 원 끌기 - 원 이름만, 탭(sessionStorage)당 원별 1회. 자체 통계 전송이 성공해야 기록한다.
 const gaCircleSent = new Set();
 initIntroCircles({

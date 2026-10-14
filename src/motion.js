@@ -86,3 +86,40 @@ export function animatePanel(panel) {
     setTimeout(finish, 1500);
   }
 }
+
+const SEQUENCE_GAP_MS = 320;
+
+/**
+ * 생각풍선 구역(보고 듣는 이야기)과 대화 단계 풍선(작은 '왜?')을 화면에 들어올 때 한 번, 시안 순서대로 하나씩.
+ * 풍선 자체는 opacity·translate만 쓰고(모바일 배치의 transform과 겹치지 않게), "톡" 생기는 작은 점은 ::before가 맡는다.
+ * 처음부터 화면에 보이는 구역은 건드리지 않는다(깜빡임 방지). 공통 reveal 대상에는 넣지 않는다.
+ */
+export function initSequences() {
+  if (!document.documentElement.classList.contains('js-motion') || !('IntersectionObserver' in window)) return;
+  document.querySelectorAll('[data-sequence]').forEach((group) => {
+    const items = [...group.querySelectorAll('[data-seq-item]')];
+    if (items.length === 0) return;
+    const first = items[0];
+    if (first.getBoundingClientRect().top < window.innerHeight) return;
+    items.forEach((item, index) => item.style.setProperty('--seq-delay', `${index * SEQUENCE_GAP_MS}ms`));
+    group.classList.add('seq-pending');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        observer.disconnect();
+        group.classList.add('seq-play');
+        group.classList.remove('seq-pending');
+        const finish = () => {
+          group.classList.remove('seq-play');
+          items.forEach((item) => item.style.removeProperty('--seq-delay'));
+        };
+        items[items.length - 1].addEventListener('animationend', (event) => {
+          if (event.target === items[items.length - 1]) finish();
+        });
+        setTimeout(finish, SEQUENCE_GAP_MS * items.length + 1200);
+      },
+      { rootMargin: '0px 0px -15% 0px', threshold: 0.2 },
+    );
+    observer.observe(first);
+  });
+}
