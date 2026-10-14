@@ -46,7 +46,7 @@ test('대표 QR 주소를 랜딩 홈으로 임시 리다이렉트한다', async 
   assert.deepEqual(vercelConfig.redirects, [
     {
       source: '/qr',
-      destination: '/',
+      destination: '/?utm_source=qr&utm_medium=offline&utm_campaign=qr-main',
       permanent: false,
     },
   ]);
