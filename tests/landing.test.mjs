@@ -166,3 +166,11 @@ test('소개 원은 끌 수 있고 놓으면 스프링으로 돌아오며, 움�
   assert.match(styles, /\.js-motion \.reveal:not\(\.is-in\)/);
   assert.doesNotMatch(styles.replace(/\.js-motion[^{]*\{[^}]*\}/g, ''), /\.reveal:not\(\.is-in\)/);
 });
+
+test('생각풍선·대화 단계 풍선은 시안 순서(질문 풍선 먼저)대로 표시된다', () => {
+  const order = ['아이의 말에 어떻게 반응하지?', '대화를 시작하기 어려워.', '나라면 어떻게 했을까?'].map((t) => html.indexOf(`data-seq-item>${t}`));
+  order.forEach((p) => assert.ok(p > 0));
+  assert.ok(order[0] < order[1] && order[1] < order[2], '질문 풍선이 먼저');
+  assert.equal((html.match(/data-seq-item/g) ?? []).length, 6);
+  assert.match(main, /initSequences\(\)/);
+});

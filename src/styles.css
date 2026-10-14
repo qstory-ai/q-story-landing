@@ -1984,11 +1984,69 @@ button {
 /* 자주 묻는 질문: 펼칠 때 답이 살짝 떠오르며(화살표는 회전) */
 .js-motion .faq-list details[open] p { animation: qs-rise 0.24s ease-out; }
 
-@media (prefers-reduced-motion: reduce) {
-  .bubble[data-circle] {
+/* 생각풍선·대화 단계: 화면에 들어올 때 한 번, 시안 순서대로(320ms 간격) - 작은 점이 톡 생기고 풍선이 떠오른다. */
+@keyframes qs-bubble-in {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+
+@keyframes qs-bubble-dot {
+  0% { opacity: 0; scale: 0.2; }
+  35% { opacity: 1; scale: 1; }
+  100% { opacity: 0; scale: 1; }
+}
+
+.js-motion [data-seq-item].seq-hidden {
+  opacity: 0;
+}
+
+.js-motion [data-seq-item].is-playing {
+  animation: qs-bubble-in 0.42s cubic-bezier(0.2, 0.7, 0.3, 1) calc(var(--seq-delay, 0ms) + 0.12s) backwards;
+}
+
+.js-motion [data-seq-item].is-playing::before {
+  content: '';
+  position: absolute;
+  left: 18%;
+  bottom: -14px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  animation: qs-bubble-dot 0.55s ease-out var(--seq-delay, 0ms) backwards;
+}
+
+.js-motion .dialog-pill.is-playing::before {
+  background: var(--purple-100);
+  box-shadow: 0 0 8px rgba(234, 226, 250, 0.6);
+}
+
+/* 900px 미만은 대화 단계 풍선이 흐름 배치라, 점(::before)의 기준이 되도록 나타나는 동안만 relative(위치 이동 없음). */
+@media (max-width: 899px) {
+  .js-motion .dialog-pill.is-playing {
+    position: relative;
+    left: auto !important;
+    top: auto !important;
+  }
+}
+
+/* 인쇄할 때는 숨긴 것 없이 */
+@media print {
+  .reveal,
+  [data-seq-item] {
+    opacity: 1 !important;
+    translate: none !important;
     animation: none !important;
   }
+}
 
+@media (prefers-reduced-motion: reduce) {
+  /* 등장·떠다니기는 JS가 html.js-motion을 떼어 끈다. 여기서는 클래스와 무관한 hover 이동만 끈다. */
   .bubble[data-circle],
   .btn-cta,
   .btn-cta .arrow {
