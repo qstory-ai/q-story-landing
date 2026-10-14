@@ -805,11 +805,13 @@ button {
 
 /* 01 */
 .story-card {
-  left: 153.3px;
-  top: 395.2px;
-  width: 369px;
-  height: 505px;
-  background: url('/assets/s6-story-card.webp') 0 0 / 369px 505px no-repeat;
+  left: 165px;
+  top: 399.6px;
+  width: 345px;
+  height: 500px;
+  border-radius: 16px;
+  background: url('/assets/s6-story-card.webp') 0 0 / 345px 500px no-repeat;
+  box-shadow: 0 4px 14px rgba(63, 56, 70, 0.14);
 }
 
 .story-card > * {
@@ -1000,10 +1002,12 @@ button {
 }
 
 .report-shot--b {
-  left: 714px;
-  top: 298px;
-  width: 602px;
-  height: 354px;
+  left: 726px;
+  top: 310px;
+  width: 578px;
+  height: 330px;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(63, 56, 70, 0.16);
 }
 
 .how-caption--3 {
