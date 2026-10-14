@@ -114,3 +114,33 @@ test('개인정보나 실명 연락처를 랜딩에 노출하지 않는다', () 
   assert.doesNotMatch(html, /privacy\.html|개인정보처리방침/);
   assert.doesNotMatch(html, /tel:|010[-\s]?\d{4}[-\s]?\d{4}/);
 });
+
+test('Google Analytics는 광고 기능을 끄고 경로·utm만 보낸다', async () => {
+  const ga = await readFile(new URL('src/ga.js', root), 'utf8');
+  assert.match(ga, /G-79Z59DXLN3/);
+  assert.match(ga, /allow_google_signals: false/);
+  assert.match(ga, /allow_ad_personalization_signals: false/);
+  assert.match(ga, /ad_storage: 'denied'/);
+  assert.match(ga, /send_page_view: false/);
+  assert.match(ga, /'qstory\.ai\.kr', 'demo\.qstory\.ai\.kr'/);
+  assert.match(script, /initGoogleAnalytics/);
+  assert.match(script, /trackGaEvent\('cta_click'/);
+
+  const { gaPageLocation, gaReferrer, scrubGaHit } = await import(new URL('src/ga.js', root).href);
+  assert.equal(
+    gaPageLocation('https://qstory.ai.kr/?utm_source=qr&utm_medium=offline&utm_campaign=qr-main&session_id=abc'),
+    'https://qstory.ai.kr/?utm_source=qr&utm_medium=offline&utm_campaign=qr-main',
+  );
+  assert.equal(gaReferrer('https://search.example/q?x=secret'), 'https://search.example/');
+  const collect = 'https://region1.google-analytics.com/g/collect?v=2';
+  assert.equal(scrubGaHit(`${collect}&en=page_view&dl=https%3A%2F%2Fqstory.ai.kr%2F%23beta`, null), null);
+  assert.equal(scrubGaHit(`${collect}&en=click`, null), null);
+  const kept = scrubGaHit(`${collect}&en=page_view&ep.qs_surface=landing&dl=${encodeURIComponent('https://qstory.ai.kr/?session_id=abc&utm_source=qr')}`, null);
+  assert.equal(new URL(kept.url).searchParams.get('dl'), 'https://qstory.ai.kr/?utm_source=qr');
+});
+
+test('자체 통계는 살아 있는 데모 프록시로 보내고 예전 Edge Function 주소는 쓰지 않는다', () => {
+  assert.match(script, /https:\/\/demo\.qstory\.ai\.kr\/api\/qstory\/v1\/beta-events/);
+  assert.match(script, /LEGACY_ANALYTICS_PATH/);
+  assert.match(exampleEnv, /VITE_ANALYTICS_URL=https:\/\/demo\.qstory\.ai\.kr\/api\/qstory\/v1\/beta-events/);
+});

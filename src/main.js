@@ -1,5 +1,8 @@
+import { initGoogleAnalytics } from './ga.js';
+
 const configuredPlayerUrl = import.meta.env.VITE_PLAYER_URL?.trim() ?? '';
 const configuredAnalyticsUrl = import.meta.env.VITE_ANALYTICS_URL?.trim() ?? '';
+const configuredGaMeasurementId = import.meta.env.VITE_GA_MEASUREMENT_ID?.trim() ?? '';
 const configuredLandingRelease = import.meta.env.VITE_LANDING_RELEASE?.trim() ?? '';
 const SESSION_STORAGE_KEY = 'qstory.beta.session.v1';
 const LANDING_RELEASE = configuredLandingRelease || 'tracking-v2-20260811';
@@ -19,8 +22,19 @@ function getPlayerUrl(value) {
   }
 }
 
+// 자체 통계는 데모 앱의 프록시(/api/qstory/v1/beta-events, 랜딩 출처 CORS 허용)로 보낸다. 예전 Supabase Edge Function
+// 주소(/functions/v1/beta-events)는 없어졌으므로(405) 그 값이 환경변수에 남아 있어도 기본 주소를 쓴다.
+const DEFAULT_ANALYTICS_URL = 'https://demo.qstory.ai.kr/api/qstory/v1/beta-events';
+const LEGACY_ANALYTICS_PATH = /\/functions\/v1\/beta-events\/?$/;
+
+function getAnalyticsUrl(value) {
+  const configured = getPlayerUrl(value);
+  if (!configured || LEGACY_ANALYTICS_PATH.test(new URL(configured).pathname)) return DEFAULT_ANALYTICS_URL;
+  return configured;
+}
+
 const playerUrl = getPlayerUrl(configuredPlayerUrl);
-const analyticsUrl = getPlayerUrl(configuredAnalyticsUrl);
+const analyticsUrl = getAnalyticsUrl(configuredAnalyticsUrl);
 const status = document.querySelector('[data-cta-status]');
 
 function trafficTypeForUrl(value) {
@@ -90,6 +104,7 @@ function getSessionId() {
 }
 
 const sessionId = getSessionId();
+const trackGaEvent = initGoogleAnalytics({ measurementId: configuredGaMeasurementId, trafficType });
 
 function trackLandingEvent(eventName, metadata = {}) {
   if (!analyticsUrl) return;
@@ -126,6 +141,7 @@ document.querySelectorAll('[data-player-link]').forEach((link) => {
     trackLandingEvent('landing_cta_click', {
       cta_location: link.dataset.ctaLocation ?? 'unknown',
     });
+    trackGaEvent('cta_click', { cta_location: link.dataset.ctaLocation ?? 'unknown' });
   });
 
   if (sessionPlayerUrl) {
