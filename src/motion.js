@@ -48,8 +48,19 @@ export function initMotion() {
     (entries) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
-        entry.target.classList.add('is-in');
-        observer.unobserve(entry.target);
+        const el = entry.target;
+        el.classList.add('is-in');
+        observer.unobserve(el);
+        // 다 나타나면 reveal 클래스를 떼어 원래 transition(CTA hover·눌림 등)으로 돌려놓는다.
+        let done = false;
+        const settle = () => {
+          if (done) return;
+          done = true;
+          el.classList.remove('reveal', 'is-in');
+          el.style.removeProperty('--reveal-delay');
+        };
+        el.addEventListener('transitionend', (event) => { if (event.target === el) settle(); });
+        setTimeout(settle, 1200);
       });
     },
     { rootMargin: '0px 0px -10% 0px', threshold: 0.05 },
@@ -64,8 +75,14 @@ export function animatePanel(panel) {
   // 다시 그려야 애니메이션이 처음부터 돈다.
   void panel.offsetWidth;
   panel.classList.add('is-entering');
+  panel.addEventListener('animationend', (event) => { if (event.target === panel) panel.classList.remove('is-entering'); }, { once: true });
   if (panel.querySelector('.chat') && !panel.dataset.chatShown) {
     panel.dataset.chatShown = '1';
     panel.classList.add('chat-pop');
+    // 마지막 말풍선까지 나오면 클래스를 떼어 탭을 다시 열 때 또 재생되지 않게 한다.
+    const lastChat = [...panel.querySelectorAll('.chat')].pop();
+    const finish = () => panel.classList.remove('chat-pop');
+    lastChat?.addEventListener('animationend', finish, { once: true });
+    setTimeout(finish, 1500);
   }
 }

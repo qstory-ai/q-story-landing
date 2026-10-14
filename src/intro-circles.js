@@ -1,13 +1,16 @@
-// 소개 구역의 발견·표현·탐색 원: 끌면 따라오고, 놓으면 감쇠 스프링으로 제자리(떠다니는 위치)로 돌아간다.
-// transform 계열(translate·scale)만 바꾸고, 화면 밖이면 멈춘다. prefers-reduced-motion이면 떠다니기·튕김 없이 즉시 복귀.
+// 소개 구역의 발견·표현·탐색 원: 끌면 따라오고, 놓으면 감쇠 스프링으로 제자리로 돌아간다.
+// - 평소 떠다니기는 CSS @keyframes(translate, styles.css)라 JS는 매 프레임 돌지 않는다.
+// - rAF는 끄는 동안과 놓은 뒤 스프링이 멈출 때까지만. 끈 거리는 transform(translate·scale)으로만 준다.
+// - 터치는 세로 스크롤을 막지 않는다(touch-action: pan-y). 가로로 먼저 움직였을 때만 끌기로 잡는다.
+// - prefers-reduced-motion이면 떠다니기·튕김 없이 놓는 즉시 제자리.
 
-const FLOAT_PX = 4;
 const STIFFNESS = 170; // 1/s²
 const DAMPING = 13; // 1/s
+const TOUCH_SLOP_PX = 8;
 const DRAG_TRACK_PX = 6;
 const TRACKED_KEY = 'qstory.intro-circle-drag.v1';
 
-function trackedCircles() {
+function readTracked() {
   try {
     return new Set(JSON.parse(globalThis.sessionStorage?.getItem(TRACKED_KEY) ?? '[]'));
   } catch {
@@ -15,7 +18,7 @@ function trackedCircles() {
   }
 }
 
-function rememberTracked(set) {
+function writeTracked(set) {
   try {
     globalThis.sessionStorage?.setItem(TRACKED_KEY, JSON.stringify([...set]));
   } catch {
@@ -28,149 +31,186 @@ function zoomFactor() {
   return window.innerWidth >= 900 && value > 0 ? value : 1;
 }
 
-/** @param {{ onFirstDrag?: (circle: string) => void }} [options] */
+/**
+ * @param {{ onFirstDrag?: (circle: string) => Promise<boolean> | boolean | void }} [options]
+ *   원마다 처음 끌었을 때 한 번 부른다. true(전송 성공)를 돌려주면 이 탭(sessionStorage)에서 다시 부르지 않는다.
+ */
 export function initIntroCircles({ onFirstDrag } = {}) {
   const elements = [...document.querySelectorAll('.bubble[data-circle]')];
   if (elements.length === 0) return;
   const section = elements[0].closest('section');
   const link = document.querySelector('[data-circle-link]');
   const reduceQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const tracked = trackedCircles();
+  const tracked = readTracked();
+  const pending = new Set();
 
-  const circles = elements.map((el, index) => ({
+  const circles = elements.map((el) => ({
     el,
     name: el.dataset.circle,
     x: 0,
     y: 0,
     vx: 0,
     vy: 0,
-    phase: index * 2.1,
-    dragging: false,
+    pointerId: null,
+    pointerType: '',
+    state: 'idle', // idle | pending(터치가 방향을 정하기 전) | dragging | spring
     startX: 0,
     startY: 0,
     grabX: 0,
     grabY: 0,
+    zoom: 1,
     moved: false,
   }));
 
-  const floatAt = (circle, time) =>
-    reduceQuery.matches
-      ? { x: 0, y: 0 }
-      : {
-          x: Math.sin(time / 2.7 + circle.phase) * FLOAT_PX,
-          y: Math.cos(time / 3.3 + circle.phase * 1.3) * FLOAT_PX,
-        };
+  const linkVisible = () => Boolean(link && link.getClientRects().length > 0);
 
-  const render = () => {
-    circles.forEach((circle) => {
-      circle.el.style.translate = `${circle.x.toFixed(2)}px ${circle.y.toFixed(2)}px`;
-    });
-    if (link && circles.length === 3) {
-      // 연결선(시안 Vector 1)은 위 원에서 시작해 오른쪽 원 뒤를 지나 아래 원으로 - 끝점·조절점이 각 원을 따라간다.
-      const [a, b, c] = circles;
-      link.setAttribute(
-        'd',
-        `M${2 + a.x} ${2 + a.y} C ${150 + b.x} ${70 + b.y}, ${150 + b.x} ${210 + b.y}, ${2 + c.x} ${279 + c.y}`,
-      );
-    }
+  const render = (circle) => {
+    const scale = circle.state === 'dragging' ? 1.05 : 1;
+    circle.el.style.transform =
+      circle.state === 'idle' ? '' : `translate(${circle.x.toFixed(2)}px, ${circle.y.toFixed(2)}px) scale(${scale})`;
   };
 
-  let visible = false;
+  const renderLink = () => {
+    if (!linkVisible() || circles.length !== 3) return;
+    // 연결선(시안 Vector 1)은 위 원에서 시작해 오른쪽 원 뒤를 지나 아래 원으로 - 끝점·조절점이 끈 거리를 따라간다.
+    const [a, b, c] = circles;
+    link.setAttribute(
+      'd',
+      `M${2 + a.x} ${2 + a.y} C ${150 + b.x} ${70 + b.y}, ${150 + b.x} ${210 + b.y}, ${2 + c.x} ${279 + c.y}`,
+    );
+  };
+
   let frame = 0;
   let last = 0;
   const step = (now) => {
     frame = 0;
     const dt = Math.min(0.05, last ? (now - last) / 1000 : 0.016);
     last = now;
-    const time = now / 1000;
-    let busy = false;
+    let active = false;
     circles.forEach((circle) => {
-      if (circle.dragging) {
-        busy = true;
+      if (circle.state === 'dragging') {
+        active = true;
+        render(circle);
         return;
       }
-      const target = floatAt(circle, time);
-      if (reduceQuery.matches) {
+      if (circle.state !== 'spring') return;
+      circle.vx += (-STIFFNESS * circle.x - DAMPING * circle.vx) * dt;
+      circle.vy += (-STIFFNESS * circle.y - DAMPING * circle.vy) * dt;
+      circle.x += circle.vx * dt;
+      circle.y += circle.vy * dt;
+      if (Math.hypot(circle.x, circle.y) < 0.2 && Math.hypot(circle.vx, circle.vy) < 2) {
         circle.x = 0;
         circle.y = 0;
         circle.vx = 0;
         circle.vy = 0;
-        return;
+        circle.state = 'idle';
+        circle.el.classList.remove('is-moving');
+      } else {
+        active = true;
       }
-      const ax = -STIFFNESS * (circle.x - target.x) - DAMPING * circle.vx;
-      const ay = -STIFFNESS * (circle.y - target.y) - DAMPING * circle.vy;
-      circle.vx += ax * dt;
-      circle.vy += ay * dt;
-      circle.x += circle.vx * dt;
-      circle.y += circle.vy * dt;
-      busy = true;
+      render(circle);
     });
-    render();
-    if (busy && visible) frame = requestAnimationFrame(step);
+    renderLink();
+    if (active) frame = requestAnimationFrame(step);
+    else last = 0;
   };
-  const start = () => {
-    if (!frame && visible) {
-      last = 0;
-      frame = requestAnimationFrame(step);
+  const kick = () => {
+    if (!frame) frame = requestAnimationFrame(step);
+  };
+
+  const reportFirstDrag = async (name) => {
+    if (tracked.has(name) || pending.has(name) || !onFirstDrag) return;
+    pending.add(name);
+    try {
+      // 전송이 성공했을 때만 기록 - 실패하면 다음에 다시 끌 때 한 번 더 보낸다.
+      if ((await onFirstDrag(name)) === true) {
+        tracked.add(name);
+        writeTracked(tracked);
+      }
+    } finally {
+      pending.delete(name);
     }
+  };
+
+  const beginDrag = (circle) => {
+    circle.state = 'dragging';
+    circle.el.classList.add('is-dragging', 'is-moving');
+    kick();
   };
 
   circles.forEach((circle) => {
     const { el } = circle;
     el.addEventListener('pointerdown', (event) => {
-      if (event.button !== 0) return;
-      circle.dragging = true;
-      circle.moved = false;
+      if (circle.pointerId !== null || (event.pointerType === 'mouse' && event.button !== 0)) return;
+      circle.pointerId = event.pointerId;
+      circle.pointerType = event.pointerType;
       circle.startX = event.clientX;
       circle.startY = event.clientY;
       circle.grabX = circle.x;
       circle.grabY = circle.y;
       circle.vx = 0;
       circle.vy = 0;
-      el.setPointerCapture(event.pointerId);
-      el.classList.add('is-dragging');
+      circle.moved = false;
+      circle.zoom = zoomFactor();
+      if (event.pointerType === 'mouse' || event.pointerType === 'pen') {
+        el.setPointerCapture(event.pointerId);
+        beginDrag(circle);
+      } else {
+        // 터치: 방향이 정해질 때까지 기다린다. 세로면 브라우저 스크롤(pan-y)에 맡기고 끝낸다.
+        circle.state = circle.state === 'spring' ? 'spring' : 'idle';
+        circle.pendingTouch = true;
+      }
     });
     el.addEventListener('pointermove', (event) => {
-      if (!circle.dragging) return;
-      const zoom = zoomFactor();
-      const dx = (event.clientX - circle.startX) / zoom;
-      const dy = (event.clientY - circle.startY) / zoom;
-      circle.x = circle.grabX + dx;
-      circle.y = circle.grabY + dy;
+      if (event.pointerId !== circle.pointerId) return;
+      const dx = event.clientX - circle.startX;
+      const dy = event.clientY - circle.startY;
+      if (circle.pendingTouch) {
+        if (Math.hypot(dx, dy) < TOUCH_SLOP_PX) return;
+        circle.pendingTouch = false;
+        if (Math.abs(dx) <= Math.abs(dy)) {
+          circle.pointerId = null; // 세로 쓸기 - 스크롤로 둔다.
+          return;
+        }
+        el.setPointerCapture(event.pointerId);
+        beginDrag(circle);
+      }
+      if (circle.state !== 'dragging') return;
+      circle.x = circle.grabX + dx / circle.zoom;
+      circle.y = circle.grabY + dy / circle.zoom;
       if (!circle.moved && Math.hypot(dx, dy) > DRAG_TRACK_PX) {
         circle.moved = true;
-        if (!tracked.has(circle.name)) {
-          tracked.add(circle.name);
-          rememberTracked(tracked);
-          onFirstDrag?.(circle.name);
-        }
+        void reportFirstDrag(circle.name);
       }
-      render();
     });
-    const release = () => {
-      if (!circle.dragging) return;
-      circle.dragging = false;
+    const end = (event) => {
+      if (event.pointerId !== circle.pointerId) return;
+      circle.pointerId = null;
+      circle.pendingTouch = false;
+      if (circle.state !== 'dragging') return;
       el.classList.remove('is-dragging');
       if (reduceQuery.matches) {
         circle.x = 0;
         circle.y = 0;
-        render();
+        circle.state = 'idle';
+        el.classList.remove('is-moving');
+        render(circle);
+        renderLink();
+        return;
       }
-      start();
+      circle.state = 'spring';
+      kick();
     };
-    el.addEventListener('pointerup', release);
-    el.addEventListener('pointercancel', release);
-    el.addEventListener('lostpointercapture', release);
+    el.addEventListener('pointerup', end);
+    el.addEventListener('pointercancel', end);
+    el.addEventListener('lostpointercapture', end);
   });
 
+  // 화면 밖이면 떠다니기(CSS)도 멈춘다.
   if ('IntersectionObserver' in window && section) {
     new IntersectionObserver((entries) => {
-      visible = entries.some((entry) => entry.isIntersecting);
-      if (visible) start();
+      const visible = entries.some((entry) => entry.isIntersecting);
+      section.classList.toggle('is-offscreen', !visible);
     }).observe(section);
-  } else {
-    visible = true;
-    start();
   }
-  reduceQuery.addEventListener?.('change', start);
 }

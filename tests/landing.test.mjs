@@ -156,7 +156,11 @@ test('소개 원은 끌 수 있고 놓으면 스프링으로 돌아오며, 움�
   assert.match(circles, /requestAnimationFrame/);
   assert.match(circles, /sessionStorage/);
   assert.match(main, /intro_circle_drag/);
-  assert.match(styles, /\.bubble\[data-circle\] \{\s*touch-action: none;/);
+  assert.match(styles, /\.bubble\[data-circle\] \{\s*touch-action: pan-y;/);
+  assert.doesNotMatch(styles, /touch-action: none/);
+  assert.match(circles, /pointerId !== circle\.pointerId/);
+  assert.match(styles, /@keyframes qs-float/);
+  assert.match(tracking, /\.then\(\(response\) => response\.ok\)/);
   assert.match(motion, /prefers-reduced-motion: reduce/);
   // 숨김은 JS가 붙인 클래스 아래에서만 - JS가 없으면 내용이 그대로 보인다.
   assert.match(styles, /\.js-motion \.reveal:not\(\.is-in\)/);

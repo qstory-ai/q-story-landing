@@ -1748,8 +1748,9 @@ button {
   .about-link { display: none; }
   .bubbles { display: grid; gap: 14px; margin: 36px auto 0; justify-items: center; }
   .bubble { width: 220px; height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
-  .bubble:nth-child(2) { transform: translateX(46px); }
-  .bubble:nth-child(odd) { transform: translateX(-46px); }
+  .bubble { position: relative !important; }
+  .bubble:nth-child(2) { left: 46px; }
+  .bubble:nth-child(odd) { left: -46px; }
   .bubble strong { font-size: 20px; line-height: 28px; }
   .about-note { width: auto; margin-top: 32px; }
 
@@ -1878,21 +1879,36 @@ button {
    움직임 - opacity·translate·scale만. 숨김은 JS가 붙인 html.js-motion 아래에서만, 움직임 줄이기면 전부 끔.
    ========================================================= */
 
-/* 소개 원 끌기 */
+/* 소개 원 끌기 - 세로 스크롤은 브라우저에 맡기고(pan-y) 가로로 먼저 움직일 때만 JS가 끌기로 잡는다. */
 .bubble[data-circle] {
-  touch-action: none;
+  touch-action: pan-y;
   cursor: grab;
-  transition: scale 0.2s ease, box-shadow 0.2s ease;
-  will-change: translate;
+  transition: box-shadow 0.2s ease;
+}
+
+.bubble[data-circle].is-moving {
+  will-change: transform;
 }
 
 .bubble[data-circle].is-dragging {
-  scale: 1.05;
   cursor: grabbing;
   user-select: none;
   box-shadow: 0 14px 30px rgba(63, 56, 70, 0.2);
   z-index: 2;
 }
+
+/* 평소 떠다니기(±4px, 원마다 다른 주기·위상) - CSS라 JS는 돌지 않는다. 화면 밖이면 멈춘다. */
+@keyframes qs-float {
+  0%, 100% { translate: 0 0; }
+  25% { translate: 4px -3px; }
+  50% { translate: 1px 4px; }
+  75% { translate: -4px 1px; }
+}
+
+.js-motion .bubble[data-circle] { animation: qs-float 8s ease-in-out infinite; }
+.js-motion .bubble--pink[data-circle] { animation-duration: 9.5s; animation-delay: -3s; }
+.js-motion .bubble--green[data-circle] { animation-duration: 11s; animation-delay: -6s; }
+.js-motion .is-offscreen .bubble[data-circle] { animation-play-state: paused; }
 
 .about-link {
   overflow: visible;
@@ -1938,7 +1954,7 @@ button {
 @keyframes qs-pop {
   from {
     opacity: 0;
-    scale: 0.94;
+    translate: 0 6px;
   }
 }
 
@@ -1969,6 +1985,10 @@ button {
 .js-motion .faq-list details[open] p { animation: qs-rise 0.24s ease-out; }
 
 @media (prefers-reduced-motion: reduce) {
+  .bubble[data-circle] {
+    animation: none !important;
+  }
+
   .bubble[data-circle],
   .btn-cta,
   .btn-cta .arrow {

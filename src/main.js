@@ -16,11 +16,15 @@ wireCtas();
 wireMenu();
 wireEmailCopy();
 initMotion();
-// 소개 원 끌기 - 원 이름만, 세션당 원별 1회.
+// 소개 원 끌기 - 원 이름만, 탭(sessionStorage)당 원별 1회. 자체 통계 전송이 성공해야 기록한다.
+const gaCircleSent = new Set();
 initIntroCircles({
   onFirstDrag: (circle) => {
-    trackLandingEvent('intro_circle_drag', { circle });
-    trackGaEvent('intro_circle_drag', { circle });
+    if (!gaCircleSent.has(circle)) {
+      gaCircleSent.add(circle);
+      trackGaEvent('intro_circle_drag', { circle });
+    }
+    return trackLandingEvent('intro_circle_drag', { circle });
   },
 });
 
