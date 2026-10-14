@@ -1773,7 +1773,6 @@ button {
   .dialog-title { justify-self: start; margin-bottom: 14px; }
   .dialog-steps { display: contents; }
   .dialog-pill { width: auto !important; height: auto; padding: 14px 22px !important; font-size: 16px !important; line-height: 22px !important; white-space: normal; }
-  .dialog-pill { position: relative; left: auto !important; top: auto !important; }
   .dialog-pill--1 { order: 1; }
   .dialog-book { order: 2; width: 180px; height: 180px; }
   .dialog-pill--2 { order: 3; }
@@ -1999,15 +1998,15 @@ button {
   100% { opacity: 0; scale: 1; }
 }
 
-.js-motion .seq-pending [data-seq-item] {
+.js-motion [data-seq-item].seq-hidden {
   opacity: 0;
 }
 
-.js-motion .seq-play [data-seq-item] {
+.js-motion [data-seq-item].is-playing {
   animation: qs-bubble-in 0.42s cubic-bezier(0.2, 0.7, 0.3, 1) calc(var(--seq-delay, 0ms) + 0.12s) backwards;
 }
 
-.js-motion .seq-play [data-seq-item]::before {
+.js-motion [data-seq-item].is-playing::before {
   content: '';
   position: absolute;
   left: 18%;
@@ -2022,22 +2021,32 @@ button {
   animation: qs-bubble-dot 0.55s ease-out var(--seq-delay, 0ms) backwards;
 }
 
-.js-motion .seq-play .dialog-pill::before {
+.js-motion .dialog-pill.is-playing::before {
   background: var(--purple-100);
   box-shadow: 0 0 8px rgba(234, 226, 250, 0.6);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .bubble[data-circle],
-  [data-seq-item],
-  [data-seq-item]::before {
+/* 900px 미만은 대화 단계 풍선이 흐름 배치라, 점(::before)의 기준이 되도록 나타나는 동안만 relative(위치 이동 없음). */
+@media (max-width: 899px) {
+  .js-motion .dialog-pill.is-playing {
+    position: relative;
+    left: auto !important;
+    top: auto !important;
+  }
+}
+
+/* 인쇄할 때는 숨긴 것 없이 */
+@media print {
+  .reveal,
+  [data-seq-item] {
+    opacity: 1 !important;
+    translate: none !important;
     animation: none !important;
   }
+}
 
-  .seq-pending [data-seq-item] {
-    opacity: 1 !important;
-  }
-
+@media (prefers-reduced-motion: reduce) {
+  /* 등장·떠다니기는 JS가 html.js-motion을 떼어 끈다. 여기서는 클래스와 무관한 hover 이동만 끈다. */
   .bubble[data-circle],
   .btn-cta,
   .btn-cta .arrow {
