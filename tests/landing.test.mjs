@@ -19,7 +19,7 @@ test('Figma 시안 순서대로 첫 화면부터 바닥글까지 구역을 둔�
   positions.forEach((position, index) => assert.ok(position > 0, `${ids[index]} 구역이 있어야 한다`));
   positions.slice(1).forEach((position, index) => assert.ok(position > positions[index], '시안 순서'));
   assert.match(html, /<footer class="site-footer">/);
-  assert.match(html, /AI 시대, 스스로 묻는 아이로 자라게/);
+  assert.match(html, /아이의 호기심이 멈추지 않도록/);
   assert.match(html, /답을 찾는 것보다,/);
   assert.match(html, /읽고, 묻고, 이야기를 이어가요/);
   assert.match(html, /더 많은 이야기와 질문을,/);
