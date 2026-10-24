@@ -83,7 +83,7 @@ test('대표 QR 주소를 랜딩 홈으로 임시 리다이렉트한다', async 
 });
 
 test('시안 에셋(로고·삽화)이 들어 있고 Pretendard를 쓴다', async () => {
-  for (const asset of ['qstory-logo.png', 'hero-tablet.webp', 's3-kid.webp', 's3-mom.webp', 's4-hansel.webp', 's5-child.webp', 's6-house.webp']) {
+  for (const asset of ['qstory-logo.png', 'hero-tablet-v2.webp', 's3-kid.webp', 's3-mom.webp', 's4-hansel.webp', 's5-child.webp', 's6-house-v2.webp']) {
     const info = await stat(new URL(`public/assets/${asset}`, root));
     assert.ok(info.size > 5_000, `${asset}가 비어 있지 않아야 한다`);
   }
