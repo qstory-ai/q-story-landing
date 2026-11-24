@@ -1,3 +1,4 @@
+import { wireMotion } from './motion.js';
 import { CONTACT_EMAIL, landingMetadata, trackLandingEvent, wireCtas, wireMenu, wireZoom } from './tracking.js';
 
 // 768px 이상은 시안을 브라우저 폭의 80% 크기로 맞춘다. 좁으면 줄이고 넓으면 키운다.
@@ -5,6 +6,7 @@ import { CONTACT_EMAIL, landingMetadata, trackLandingEvent, wireCtas, wireMenu, 
 wireZoom({ mobileWidth: 768, maxZoom: Infinity, scale: 0.8 });
 wireCtas();
 wireMenu();
+wireMotion();
 
 trackLandingEvent('landing_view', {
   page: 'landing',

@@ -233,3 +233,22 @@ test('구역은 1440px 무대를 화면 폭에 맞춰 zoom으로 맞추고, 무�
   assert.match(tracking, /Math\.min\(maxZoom, \(width \* scale\) \/ 1440\)/);
   assert.match(tracking, /document\.documentElement\.clientWidth/);
 });
+
+test('움직임은 화면에 들어올 때 한 번만 돌고, 움직임 줄이기면 아무것도 숨기지 않는다', async () => {
+  const motion = await readFile(new URL('src/motion.js', root), 'utf8');
+  assert.match(main, /import \{ wireMotion \} from '\.\/motion\.js';/);
+  assert.match(main, /^wireMotion\(\);/m);
+  // 움직임 줄이기, IntersectionObserver·element.animate가 없으면 바로 끝낸다(.rv를 붙이지 않아 처음부터 다 보인다).
+  assert.match(motion, /prefers-reduced-motion: reduce/);
+  assert.match(motion, /if \(reduced \|\| !supported\) return;/);
+  // 나타나는 순간 .rv를 떼고, 움직임은 fill: 'backwards'라 끝나면 흔적이 없다.
+  assert.match(motion, /classList\.remove\('rv'\)/);
+  assert.match(motion, /fill: 'backwards'/);
+  assert.match(motion, /observer\.unobserve\(el\)/);
+  // POINT 1은 자체 움직임이 있어 더하지 않는다.
+  assert.match(motion, /\[data-acc\]/);
+  assert.match(landingCss, /\.rv {\s*opacity: 0;/);
+  assert.match(landingCss, /@media print {\s*\.rv {\s*opacity: 1 !important;/);
+  assert.match(landingCss, /\.float\.is-paused {\s*animation-play-state: paused;/);
+  assert.match(landingCss, /@media \(prefers-reduced-motion: reduce\) {\s*\.float {\s*animation: none;/);
+});

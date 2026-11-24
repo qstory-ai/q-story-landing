@@ -549,3 +549,68 @@ body {
   outline-offset: 2px;
   box-shadow: 0 0 0 4px #7550d3;
 }
+
+/* ---- 은은한 움직임 (src/motion.js) ---- */
+/* 화면에 들어오기 전까지 숨겨 둔다. .rv는 스크립트가 붙이고, 나타나는 순간 뗀다. */
+.rv {
+  opacity: 0;
+}
+
+@media print {
+  .rv {
+    opacity: 1 !important;
+  }
+}
+
+/* 무료 체험 구역 마스코트: 7초에 한 번 10px 오르내린다. 화면 밖이면 멈춘다. */
+.float {
+  animation: qs-bob 7s ease-in-out infinite;
+}
+
+.float.is-paused {
+  animation-play-state: paused;
+}
+
+@keyframes qs-bob {
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* 알약 버튼: 올리면 2px 떠오르고, 누르면 살짝 눌린다. */
+  :is(.n-872-177, .n-911-1616, .n-911-1748, .n-921-2019, .n-929-763, .n-929-841, .menu-start, .m-btn) {
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  @media (hover: hover) {
+    :is(.n-872-177, .n-911-1616, .n-911-1748, .n-921-2019, .n-929-763, .n-929-841, .menu-start, .m-btn):hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  :is(.n-872-177, .n-911-1616, .n-911-1748, .n-921-2019, .n-929-763, .n-929-841, .menu-start, .m-btn):active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  /* 자주 묻는 질문: 열면 답이 위에서 살짝 내려오며 나타난다. */
+  .faq-item[open] .faq-a,
+  .m-faq-item[open] p {
+    animation: qs-drop 0.28s ease-out;
+  }
+}
+
+@keyframes qs-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .float {
+    animation: none;
+  }
+}
