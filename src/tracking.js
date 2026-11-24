@@ -153,7 +153,7 @@ function trackCta(location) {
 
 /** CTA 3종: 무료 체험(플레이어), 로그인/회원가입(웹앱), 협업하기(/partner). */
 export function wireCtas() {
-  const status = document.querySelector('[data-cta-status]');
+  const statuses = document.querySelectorAll('[data-cta-status]');
   document.querySelectorAll('[data-player-link]').forEach((link) => {
     link.addEventListener('click', () => trackCta(link.dataset.ctaLocation ?? 'unknown'));
 
@@ -167,7 +167,7 @@ export function wireCtas() {
     link.setAttribute('aria-disabled', 'true');
     link.addEventListener('click', (event) => {
       event.preventDefault();
-      if (status) status.textContent = '체험 주소를 연결하는 중이에요. 잠시 후 다시 확인해 주세요.';
+      statuses.forEach((status) => (status.textContent = '체험 주소를 연결하는 중이에요. 잠시 후 다시 확인해 주세요.'));
     });
   });
 
@@ -181,39 +181,52 @@ export function wireCtas() {
   });
 }
 
-/** 데스크톱 시안(1440px)을 화면 폭에 맞춘 배율. 900px 미만은 세로 흐름이라 1. */
-export function wireZoom() {
+/**
+ * 데스크톱 시안(1440px)을 화면 폭에 맞춘 배율(--z). mobileWidth 미만은 1로 둔다(협업 문의 화면 기본 900).
+ * maxZoom은 넓은 화면에서 키울 한도다. 협업 문의 화면은 1(키우지 않음), 랜딩은 Infinity로 브라우저 폭을 꽉 채운다.
+ * scale은 화면 폭 중 무대가 차지할 비율이다. 0.8이면 무대가 폭의 80%가 되고 남은 양옆은 구역 배경색이 채운다.
+ * 폭은 세로 스크롤바를 뺀 clientWidth로 잰다. innerWidth로 재면 스크롤바 폭만큼 무대가 넘쳐 오른쪽이 잘린다.
+ */
+export function wireZoom({ mobileWidth = 900, maxZoom = 1, scale = 1 } = {}) {
   const apply = () => {
-    const width = window.innerWidth;
-    const zoom = width < 900 ? 1 : Math.min(1, width / 1440);
+    const width = document.documentElement.clientWidth || window.innerWidth;
+    const zoom = width < mobileWidth ? 1 : Math.min(maxZoom, (width * scale) / 1440);
     document.documentElement.style.setProperty('--z', String(zoom));
   };
   apply();
   window.addEventListener('resize', apply, { passive: true });
 }
 
+/** 메뉴 버튼은 데스크톱·모바일 머리글에 하나씩 있고(보이는 건 화면 폭에 따라 하나), 둘 다 같은 메뉴를 연다. */
 export function wireMenu() {
-  const button = document.querySelector('[data-menu-button]');
+  const buttons = [...document.querySelectorAll('[data-menu-button]')];
   const menu = document.querySelector('[data-menu]');
-  if (!button || !menu) return;
+  if (!buttons.length || !menu) return;
+  let opener = buttons[0];
+  const sync = (open) =>
+    buttons.forEach((button) => {
+      button.setAttribute('aria-expanded', String(open));
+      button.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+    });
   const close = () => {
     menu.hidden = true;
-    button.setAttribute('aria-expanded', 'false');
-    button.setAttribute('aria-label', '메뉴 열기');
+    sync(false);
   };
-  button.addEventListener('click', () => {
-    const open = menu.hidden;
-    menu.hidden = !open;
-    button.setAttribute('aria-expanded', String(open));
-    button.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
-  });
+  buttons.forEach((button) =>
+    button.addEventListener('click', () => {
+      const open = menu.hidden;
+      menu.hidden = !open;
+      opener = button;
+      sync(open);
+    }),
+  );
   menu.addEventListener('click', (event) => {
     if (event.target.closest('a')) close();
   });
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && !menu.hidden) {
       close();
-      button.focus();
+      opener.focus();
     }
   });
   document.addEventListener('click', (event) => {

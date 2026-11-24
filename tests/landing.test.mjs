@@ -8,7 +8,8 @@ const partnerHtml = await readFile(new URL('partner.html', root), 'utf8');
 const main = await readFile(new URL('src/main.js', root), 'utf8');
 const tracking = await readFile(new URL('src/tracking.js', root), 'utf8');
 const partnerJs = await readFile(new URL('src/partner.js', root), 'utf8');
-const styles = await readFile(new URL('src/styles.css', root), 'utf8');
+const landingCss = await readFile(new URL('src/landing.css', root), 'utf8');
+const mobileCss = await readFile(new URL('src/mobile.css', root), 'utf8');
 const exampleEnv = await readFile(new URL('.env.example', root), 'utf8');
 const viteConfig = await readFile(new URL('vite.config.js', root), 'utf8');
 const script = `${main}\n${tracking}`;
@@ -18,17 +19,17 @@ test('Figma 시안 순서대로 첫 화면부터 바닥글까지 구역을 둔�
   const positions = ids.map((id) => html.indexOf(`id="${id}"`));
   positions.forEach((position, index) => assert.ok(position > 0, `${ids[index]} 구역이 있어야 한다`));
   positions.slice(1).forEach((position, index) => assert.ok(position > positions[index], '시안 순서'));
-  assert.match(html, /<footer class="site-footer">/);
-  assert.match(html, /아이의 호기심이 멈추지 않도록/);
-  assert.match(html, /답을 찾는 것보다,/);
-  assert.match(html, /읽고, 묻고, 이야기를 이어가요/);
-  assert.match(html, /더 많은 이야기와 질문을,/);
+  assert.match(html, /<footer class="site-footer sec--purple">/);
+  assert.equal((html.match(/<section /g) ?? []).length, 12, 'Figma 941:304의 구역 12개');
+  [/아이의 질문으로/, /AI가 답하는 시대,/, /책을 읽은 다음,/, /우리 아이의 질문이 이어지지 않아요/, /아이의 궁금증이/,
+    /아이의 질문이 만드는/, /상호작용/, /리포트/, /표현할 기회/, /시작해볼까요\?/,/자주 묻는 질문/,
+    /더 많은 아이와 이야기를, 함께 만들어가요\./].forEach((copy) => assert.match(html, copy));
 });
 
 test('무료 체험 CTA는 환경변수 기반 플레이어 주소로, 세션·유입 정보를 붙여 연결된다', () => {
   const ctaCount = (html.match(/data-player-link/g) ?? []).length;
   assert.ok(ctaCount >= 4, '머리글·메뉴·첫 화면·시작 구역마다 체험 CTA가 있어야 한다');
-  const located = html.match(/data-player-link data-cta-location=/g) ?? [];
+  const located = html.match(/data-player-link(?:="")? data-cta-location=/g) ?? [];
   assert.equal(located.length, ctaCount);
   assert.match(script, /import\.meta\.env\.VITE_PLAYER_URL/);
   assert.match(script, /new URL\(value\)/);
@@ -65,10 +66,8 @@ test('협업 문의 폼은 시안 항목을 받고 데모 프록시의 partnersh
   assert.match(partnerJs, /method: 'POST'/);
 });
 
-test('문의 메일은 선택 가능한 글자와 복사 버튼으로 보인다', () => {
-  assert.match(html, /<a href="mailto:qstoryai@gmail\.com" data-email>qstoryai@gmail\.com<\/a>/);
-  assert.match(html, /data-copy-email/);
-  assert.match(tracking, /navigator\.clipboard\.writeText/);
+test('바닥글 문의 메일은 mailto 링크로 보인다', () => {
+  assert.match(html, /<a[^>]*href="mailto:qstoryai@gmail\.com"[^>]*data-email[^>]*>qstoryai@gmail\.com<\/a>/);
 });
 
 test('대표 QR 주소를 랜딩 홈으로 임시 리다이렉트한다', async () => {
@@ -82,14 +81,18 @@ test('대표 QR 주소를 랜딩 홈으로 임시 리다이렉트한다', async 
   ]);
 });
 
-test('시안 에셋(로고·삽화)이 들어 있고 Pretendard를 쓴다', async () => {
-  for (const asset of ['qstory-logo.png', 'hero-tablet-v2.webp', 's3-kid.webp', 's3-mom.webp', 's4-hansel.webp', 's5-child.webp', 's6-house-v2.webp']) {
-    const info = await stat(new URL(`public/assets/${asset}`, root));
-    assert.ok(info.size > 5_000, `${asset}가 비어 있지 않아야 한다`);
+test('시안 에셋은 모두 로컬 파일이고 글꼴은 나눔스퀘어라운드·나눔고딕이다', async () => {
+  assert.doesNotMatch(html, /figma\.com\/api\/mcp\/asset/);
+  const srcs = [...new Set([...html.matchAll(/src="(\/assets\/figma\/[^"]+)"/g)].map((m) => m[1]))];
+  assert.ok(srcs.length > 40, '시안 에셋을 쓴다');
+  for (const src of srcs) {
+    const info = await stat(new URL(`public${src}`, root));
+    assert.ok(info.size > 0, `${src}가 비어 있지 않아야 한다`);
   }
-  assert.match(html, /src="\/assets\/qstory-logo\.png"/);
-  assert.match(html, /pretendard@v1\.3\.9/);
-  assert.match(styles, /Pretendard Variable/);
+  for (const weight of ['400', '700', '800']) assert.match(landingCss, new RegExp(`font-weight: ${weight};`));
+  assert.match(landingCss, /NanumSquareRoundEB\.woff2/);
+  assert.match(html, /family=Nanum\+Gothic:wght@800/);
+  assert.doesNotMatch(html, /pretendard/i);
 });
 
 test('옛 문구(음성 90일 보관·아이 이름으로 초대·1차 베타 범위)를 쓰지 않는다', () => {
@@ -112,7 +115,10 @@ test('접근성 기본 구조를 제공한다', () => {
     assert.doesNotMatch(page, /<img(?![^>]*\balt=)[^>]*>/);
   }
   assert.match(main, /aria-current/);
-  assert.match(html, /role="tablist"/);
+  // 데스크톱 무대와 모바일 화면에 하나씩 있고, 보이는 쪽만 남는다(나머지는 display: none).
+  assert.equal((html.match(/<h1[ >]/g) ?? []).length, 2, '제목(h1)은 화면마다 하나');
+  assert.equal((html.match(/<h1 class="m-title/g) ?? []).length, 1);
+  assert.match(html, /<button[^>]*aria-controls="site-menu"[^>]*data-menu-button/);
 });
 
 test('Google Analytics는 광고 기능을 끄고 경로·utm만 보낸다', async () => {
@@ -145,32 +151,104 @@ test('자체 통계는 살아 있는 데모 프록시로 보내고 예전 Edge F
   assert.match(exampleEnv, /VITE_ANALYTICS_URL=https:\/\/demo\.qstory\.ai\.kr\/api\/qstory\/v1\/beta-events/);
 });
 
-test('소개 원은 끌 수 있고 놓으면 스프링으로 돌아오며, 움직임 줄이기·화면 밖을 지킨다', async () => {
-  const circles = await readFile(new URL('src/intro-circles.js', root), 'utf8');
-  const motion = await readFile(new URL('src/motion.js', root), 'utf8');
-  ['discover', 'express', 'explore'].forEach((name) => assert.match(html, new RegExp(`data-circle="${name}"`)));
-  assert.match(circles, /pointerdown/);
-  assert.match(circles, /setPointerCapture/);
-  assert.match(circles, /prefers-reduced-motion: reduce/);
-  assert.match(circles, /IntersectionObserver/);
-  assert.match(circles, /requestAnimationFrame/);
-  assert.match(circles, /sessionStorage/);
-  assert.match(main, /intro_circle_drag/);
-  assert.match(styles, /\.bubble\[data-circle\] \{\s*touch-action: pan-y;/);
-  assert.doesNotMatch(styles, /touch-action: none/);
-  assert.match(circles, /pointerId !== circle\.pointerId/);
-  assert.match(styles, /@keyframes qs-float/);
-  assert.match(tracking, /\.then\(\(response\) => response\.ok\)/);
-  assert.match(motion, /prefers-reduced-motion: reduce/);
-  // 숨김은 JS가 붙인 클래스 아래에서만 - JS가 없으면 내용이 그대로 보인다.
-  assert.match(styles, /\.js-motion \.reveal:not\(\.is-in\)/);
-  assert.doesNotMatch(styles.replace(/\.js-motion[^{]*\{[^}]*\}/g, ''), /\.reveal:not\(\.is-in\)/);
+test('첫 화면은 시안 세 장을 점으로 넘기고, 움직임 줄이기면 자동 넘김을 끈다', () => {
+  assert.equal((html.match(/data-slide/g) ?? []).length, 3);
+  assert.equal((html.match(/data-dot/g) ?? []).length, 3);
+  assert.match(html, /data-carousel/);
+  assert.match(main, /setInterval/);
+  assert.match(main, /prefers-reduced-motion: reduce/);
+  assert.match(main, /toggleAttribute\('inert'/);
+  assert.match(landingCss, /prefers-reduced-motion: reduce/);
 });
 
-test('생각풍선·대화 단계 풍선은 시안 순서(질문 풍선 먼저)대로 표시된다', () => {
-  const order = ['아이의 말에 어떻게 반응하지?', '대화를 시작하기 어려워.', '나라면 어떻게 했을까?'].map((t) => html.indexOf(`data-seq-item>${t}`));
-  order.forEach((p) => assert.ok(p > 0));
-  assert.ok(order[0] < order[1] && order[1] < order[2], '질문 풍선이 먼저');
-  assert.equal((html.match(/data-seq-item/g) ?? []).length, 6);
-  assert.match(main, /initSequences\(\)/);
+test('POINT 1 항목은 버튼으로 시안의 세 상태를 오가고, 자주 묻는 질문은 하나만 열린다', () => {
+  assert.equal((html.match(/data-acc-state=/g) ?? []).length, 3);
+  assert.equal((html.match(/data-acc-state="\d" hidden/g) ?? []).length, 2, '처음엔 첫 상태만 보인다');
+  assert.match(html, /<button[^>]*data-acc-item="0"[^>]*aria-expanded="true"/);
+  assert.equal((html.match(/<details class="faq-item/g) ?? []).length, 8);
+  assert.equal((html.match(/<details class="m-faq-item/g) ?? []).length, 8, '모바일 목록도 같은 8개');
+  assert.equal((html.match(/<details[^>]* open>/g) ?? []).length, 2, '데스크톱·모바일 목록마다 하나만 열린다');
+  assert.match(main, /details\[open\]/);
+  assert.equal((main.match(/setInterval/g) ?? []).length, 1, '자동 넘김은 autoplay 하나로 돈다');
+  assert.equal((main.match(/autoplay\(/g) ?? []).length, 3, '정의 하나와 첫 화면·POINT 1 호출');
+});
+
+test('자동 넘김에는 정지/재생 버튼이 있고, 누르면 aria-pressed로 상태를 알린다', () => {
+  assert.equal((html.match(/<button[^>]*data-auto-toggle[^>]*aria-pressed="false"[^>]*aria-label="자동 넘김 멈추기"/g) ?? []).length, 2);
+  assert.match(main, /setAttribute\('aria-pressed', String\(userPaused\)\)/);
+  assert.match(main, /if \(userPaused \|\|/);
+  assert.match(main, /toggle\.hidden = true/, '움직임 줄이기면 버튼도 숨긴다');
+});
+
+test('모바일(767px 이하)은 데스크톱 무대를 숨기고 세로 흐름 화면을 보여 준다', () => {
+  assert.match(mobileCss, /@media \(max-width: 767px\) {\s*\.art,\s*\.header-bar {\s*display: none;/);
+  assert.match(mobileCss, /@media \(min-width: 768px\) {\s*\.m {\s*display: none !important;/);
+  const blocks = html.match(/<div class="m[ "]/g) ?? [];
+  assert.equal(blocks.length, 14, '머리글 + 구역 12개 + 바닥글');
+  assert.match(html, /<button type="button" class="m-menu-button"[^>]*aria-controls="site-menu"[^>]*data-menu-button/);
+  assert.match(tracking, /querySelectorAll\('\[data-menu-button\]'\)/);
+  const spacing = [...mobileCss.matchAll(/--sp-\d+:\s*(\d+)px/g)].map((m) => Number(m[1]));
+  assert.ok(spacing.length >= 8 && spacing.every((v) => v % 4 === 0), '여백 토큰은 4의 배수');
+  // 여백은 토큰으로만 준다. 0, auto, 아이콘을 줄 가운데에 맞추는 1px은 예외.
+  const raw = [...mobileCss.matchAll(/^\s*(?:margin|padding|gap|row-gap|column-gap)[a-z-]*:\s*([^;]+);/gm)]
+    .map((m) => m[1])
+    .filter((v) => !/var\(--(sp|m)-|^0$|auto|^1px$/.test(v));
+  assert.deepEqual(raw, [], '토큰 밖 여백 값');
+});
+
+test('그림은 WebP와 지연 로딩으로 받는다', async () => {
+  assert.doesNotMatch(html, /\/assets\/(figma|mobile)\/[^"]*\.(png|jpe?g)"/i, 'png·jpg 대신 webp');
+  const body = html.slice(html.indexOf('<main'));
+  const imgs = body.match(/<img[^>]*>/g) ?? [];
+  assert.ok(imgs.length > 40);
+  imgs.forEach((tag) => assert.match(tag, /loading="lazy" decoding="async"/, tag.slice(0, 80)));
+  imgs.forEach((tag) => assert.equal((tag.match(/\sloading=/g) ?? []).length, 1, tag.slice(0, 80)));
+  // 모바일 그림은 768px 이상에서 빈 GIF를 고르게 해 데스크톱에서 받지 않는다.
+  const mobileImgs = body.match(/<img[^>]*src="\/assets\/mobile\/[^>]*>/g) ?? [];
+  assert.equal(mobileImgs.length, 4);
+  assert.equal((body.match(/<picture><source media="\(min-width: 768px\)" srcset="data:image\/gif;base64,/g) ?? []).length, (body.match(/<picture>/g) ?? []).length);
+  assert.match(html, /rel="preload" href="\/assets\/figma\/hero1\/e1737\.webp"[^>]*media="\(min-width: 768px\)"/);
+  assert.match(html, /rel="preload" href="\/assets\/mobile\/hero-tablet\.webp"[^>]*media="\(max-width: 767px\)"/);
+  for (const name of ['hero-tablet', 'tablet', 'cta-mascot']) {
+    assert.ok((await stat(new URL(`public/assets/mobile/${name}.webp`, root))).size > 0);
+  }
+});
+
+test('글씨는 디자인시스템 단계(48·36·30·24·18·16·14·12px)만 쓴다', async () => {
+  const figmaCss = await readFile(new URL('src/figma.css', root), 'utf8');
+  const allowed = new Set(['48', '36', '30', '24', '18', '16', '14', '12', '0']);
+  const sizes = [...`${figmaCss}
+${landingCss}
+${mobileCss}`.matchAll(/font-size:\s*(\d+)px/g)].map((m) => m[1]);
+  assert.ok(sizes.length > 100);
+  sizes.forEach((size) => assert.ok(allowed.has(size), `${size}px는 디자인시스템 단계가 아니다`));
+});
+
+test('구역은 1440px 무대를 화면 폭에 맞춰 zoom으로 맞추고, 무대 밖 도형은 잘라 낸다', () => {
+  assert.match(landingCss, /width: 1440px;/);
+  assert.match(landingCss, /zoom: var\(--z\);/);
+  assert.match(landingCss, /overflow-y: clip;/);
+  assert.match(landingCss, /html {[^}]*overflow-x: clip;/);
+  assert.match(main, /wireZoom\(\{ mobileWidth: 768, maxZoom: Infinity, scale: 0\.8 \}\)/);
+  assert.match(tracking, /Math\.min\(maxZoom, \(width \* scale\) \/ 1440\)/);
+  assert.match(tracking, /document\.documentElement\.clientWidth/);
+});
+
+test('움직임은 화면에 들어올 때 한 번만 돌고, 움직임 줄이기면 아무것도 숨기지 않는다', async () => {
+  const motion = await readFile(new URL('src/motion.js', root), 'utf8');
+  assert.match(main, /import \{ wireMotion \} from '\.\/motion\.js';/);
+  assert.match(main, /^wireMotion\(\);/m);
+  // 움직임 줄이기, IntersectionObserver·element.animate가 없으면 바로 끝낸다(.rv를 붙이지 않아 처음부터 다 보인다).
+  assert.match(motion, /prefers-reduced-motion: reduce/);
+  assert.match(motion, /if \(reduced \|\| !supported\) return;/);
+  // 나타나는 순간 .rv를 떼고, 움직임은 fill: 'backwards'라 끝나면 흔적이 없다.
+  assert.match(motion, /classList\.remove\('rv'\)/);
+  assert.match(motion, /fill: 'backwards'/);
+  assert.match(motion, /observer\.unobserve\(el\)/);
+  // POINT 1은 자체 움직임이 있어 더하지 않는다.
+  assert.match(motion, /\[data-acc\]/);
+  assert.match(landingCss, /\.rv {\s*opacity: 0;/);
+  assert.match(landingCss, /@media print {\s*\.rv {\s*opacity: 1 !important;/);
+  assert.match(landingCss, /\.float\.is-paused {\s*animation-play-state: paused;/);
+  assert.match(landingCss, /@media \(prefers-reduced-motion: reduce\) {\s*\.float {\s*animation: none;/);
 });
