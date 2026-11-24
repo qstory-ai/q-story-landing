@@ -161,7 +161,7 @@ faqHead[0] = retag(faqHead[0], 'h2');
 const chevron = '<span class="faq-chev" aria-hidden="true"><img alt="" src="/assets/figma/faq/ef171.svg"></span>';
 const faqList = faqData
   .map(
-    ([q, a], i) => `<details class="faq-item${i >= 5 ? ' faq-item--box' : ''}"${i === 0 ? ' open' : ''}>
+    ([q, a], i) => `<details class="faq-item"${i === 0 ? ' open' : ''}>
             <summary><span class="faq-q">Q</span><span class="faq-text">${q}</span>${chevron}</summary>
             <p class="faq-a">${a}</p>
           </details>`,

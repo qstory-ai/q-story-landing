@@ -71,7 +71,7 @@ export default function Component() {
         원작의 구조 위에서, 아이의 말과 선택에 따라 새로운 장면이 탄생해요.
       </p>
       <div className="absolute bg-[var(--base\/white,white)] h-[139.134px] left-[78.42px] rounded-[24px] top-[533.5px] w-[486px]" data-node-id="937:1502" />
-      <div className="[word-break:break-word] absolute font-['NanumSquareRound:Regular'] leading-[0] left-[111.15px] not-italic text-[20px] text-[color:var(--ink\/600,#5e5577)] top-[555.06px] whitespace-nowrap" data-node-id="937:1503">
+      <div className="[word-break:break-word] absolute font-['NanumSquareRound:Regular'] leading-[0] left-[108px] not-italic text-[20px] text-[color:var(--ink\/600,#5e5577)] top-[558px] whitespace-nowrap" data-node-id="937:1503">
         <p className="leading-[30px] mb-0 whitespace-pre">{`아이가 남긴 질문과 관심사부터 `}</p>
         <p className="leading-[30px] mb-0 whitespace-pre">함께 이야기할 후속 질문까지</p>
         <p className="leading-[30px] whitespace-pre">하나의 리포트로 만나보세요.</p>

@@ -1,6 +1,3 @@
-const assetPathPrefix = "https://www.figma.com/api/mcp/asset/ca0d5e86-1148-4668-9459-9e4e9abff394";
-const imgDash = `${assetPathPrefix}/c84e0.svg`;
-
 export default function Component() {
   return (
     <div className="bg-white relative size-full" data-node-id="872:212" data-name="문제정의">
@@ -13,11 +10,6 @@ export default function Component() {
           <p className="font-['NanumSquareRound:Regular'] leading-[24px] relative shrink-0 text-[15px] text-[color:var(--ink\/600,#5e5577)]" data-node-id="837:444">
             이야기에 쏙 빠져들고
           </p>
-        </div>
-        <div className="-translate-x-1/2 absolute h-0 left-[calc(50%-284.49px)] top-[551px] w-[93.333px]" data-node-id="837:446" data-name="Dash">
-          <div className="absolute inset-[-3px_0_0_0]">
-            <img alt="" className="block max-w-none size-full" src={imgDash} />
-          </div>
         </div>
         <div className="-translate-x-1/2 [word-break:break-word] absolute bg-[var(--pink\/100,#ffe0e8)] border-2 border-[var(--pink\/500,#ff6685)] border-solid content-stretch flex flex-col gap-[6px] items-center justify-center left-[calc(50%-142.83px)] not-italic rounded-[95px] size-[190px] text-center top-[463px] whitespace-nowrap" data-node-id="837:448" data-name="Circle">
           <p className="font-['NanumSquareRound:Bold'] leading-[35px] relative shrink-0 text-[25px] text-[color:var(--ink\/900,#2a1f45)]" data-node-id="837:449">

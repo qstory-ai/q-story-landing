@@ -62,7 +62,7 @@ export function mobileSections(faqData) {
 
   const worries = [
     ['/assets/figma/worry/a955d.svg', '“부모로서 아이의 질문과 생각을 잘 받아주고 있는 건지, 정말 생각하는 힘과 표현력을 길러주는 건지 모르겠어요.”', '교육 방법에 대한 고민'],
-    ['/assets/figma/worry/0403a.svg', '“아이의 질문에 제대로 받아주고 싶다가도,', '대화 방식에 대한 고민'],
+    ['/assets/figma/worry/0403a.svg', '“아이의 질문에 제대로 받아주고 싶다가도, 대화가 계속 이어지지 않고 한 번에 끝나요.”', '대화 방식에 대한 고민'],
   ];
   s.worry = `<div class="m m-wrap">
         ${head({ chip: '부모의 고민', title: '우리 아이의 질문이 이어지지 않아요', sub: '아이의 생각을 키워주고 싶지만, 마음처럼 쉽지는 않아요.' })}
@@ -128,7 +128,7 @@ export function mobileSections(faqData) {
   s.start = `<div class="m m-wrap m-cta">
         <h2 class="m-title">우리 아이의 질문<br>Q-Story에서 시작해볼까요?</h2>
         <p class="m-sub">아이의 질문이 대화가 되는 경험, Q-story에서 만나보세요.</p>
-        <a class="m-btn m-btn--white" href="#start" data-player-link data-cta-location="start-mobile">무료로 체험하기 →</a>
+        <a class="m-btn m-btn--line" href="#start" data-player-link data-cta-location="start-mobile">무료로 체험하기 →</a>
         <p class="cta-status m-status" data-cta-status aria-live="polite"></p>
         ${img('/assets/mobile/cta-mascot.webp', '', 400, 400, 'm-cta-img')}
       </div>`;

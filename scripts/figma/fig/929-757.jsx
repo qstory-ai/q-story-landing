@@ -19,8 +19,8 @@ export default function Frame57() {
             아이의 질문이 대화가 되는 경험, Q-story에서 만나보세요.
           </p>
           <div className="h-[8px] relative shrink-0 w-[10px]" data-node-id="929:762" data-name="spacer" />
-          <div className="bg-[var(--base\/white,white)] content-stretch drop-shadow-[0px_8px_10px_rgba(166,93,237,0.35)] flex h-[56px] items-center justify-center px-[30px] relative rounded-[999px] shrink-0 w-[200px]" data-node-id="929:763" data-name="Button/Soft Primary">
-            <p className="[word-break:break-word] font-['NanumSquareRound:ExtraBold'] leading-[30px] not-italic relative shrink-0 text-[#a65ded] text-[20px] whitespace-nowrap" data-node-id="I929:763;9:413">
+          <div className="border border-[var(--base\/white,white)] border-solid content-stretch flex h-[56px] items-center justify-center px-[30px] relative rounded-[999px] shrink-0 w-[200px]" data-node-id="929:763" data-name="Button/Soft Primary">
+            <p className="[word-break:break-word] font-['NanumSquareRound:ExtraBold'] leading-[30px] not-italic relative shrink-0 text-[20px] text-[color:var(--base\/white,white)] whitespace-nowrap" data-node-id="I929:763;9:413">
               무료로 체험하기 →
             </p>
           </div>

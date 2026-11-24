@@ -24,8 +24,11 @@
   --muted: #5e5577;
 }
 
-.m {
-  display: none;
+/* .m-cta처럼 display를 따로 주는 블록도 데스크톱에서는 숨긴다. */
+@media (min-width: 768px) {
+  .m {
+    display: none !important;
+  }
 }
 
 @media (max-width: 767px) {
@@ -190,7 +193,7 @@
 
 .m-btn--line {
   border: 2px solid #fff;
-  color: #fff;
+  color: #fff !important;
 }
 
 .m-btn--white {
@@ -678,12 +681,13 @@
 }
 
 .m-faq-item {
+  border: 1px solid #766b80; /* neutral/600 */
   border-radius: 20px;
   background: #fff;
-  box-shadow: 0 8px 24px rgba(117, 80, 211, 0.1);
 }
 
 .m-faq-item[open] {
+  border-color: transparent;
   outline: 2px solid var(--purple);
   outline-offset: -2px;
 }
@@ -706,6 +710,10 @@
 }
 
 .m-faq-q {
+  color: #766b80;
+}
+
+.m-faq-item[open] .m-faq-q {
   color: var(--purple);
 }
 

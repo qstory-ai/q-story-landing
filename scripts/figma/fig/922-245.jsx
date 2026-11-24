@@ -18,7 +18,7 @@ export default function Component() {
         <span className="leading-[1.75] text-[30px] tracking-[-0.3px]">”</span>
       </p>
       <p className="[word-break:break-word] absolute font-['NanumSquareRound:ExtraBold'] leading-[1.75] left-[786.62px] not-italic text-[30px] text-[color:var(--neutral\/900,#27222d)] top-[543.17px] tracking-[-0.3px] w-[348.078px]" data-node-id="939:1675">
-        “아이의 질문에 제대로 받아주고 싶다가도,
+        대화가 계속 이어지지 않고 한 번에 끝나요.
       </p>
       <div className="absolute bg-[var(--purple\/400,#9979e1)] content-stretch flex items-center justify-center left-[115.59px] px-[29px] py-[8px] rounded-[24px] top-[687.17px]" data-node-id="939:1667">
         <p className="[word-break:break-word] font-['NanumSquareRound:Regular'] leading-[24px] not-italic relative shrink-0 text-[15px] text-[color:var(--base\/white,white)] text-center whitespace-nowrap" data-node-id="939:1664">

@@ -182,7 +182,7 @@ test('자동 넘김에는 정지/재생 버튼이 있고, 누르면 aria-pressed
 
 test('모바일(767px 이하)은 데스크톱 무대를 숨기고 세로 흐름 화면을 보여 준다', () => {
   assert.match(mobileCss, /@media \(max-width: 767px\) {\s*\.art,\s*\.header-bar {\s*display: none;/);
-  assert.match(mobileCss, /^\.m {\s*display: none;/m);
+  assert.match(mobileCss, /@media \(min-width: 768px\) {\s*\.m {\s*display: none !important;/);
   const blocks = html.match(/<div class="m[ "]/g) ?? [];
   assert.equal(blocks.length, 14, '머리글 + 구역 12개 + 바닥글');
   assert.match(html, /<button type="button" class="m-menu-button"[^>]*aria-controls="site-menu"[^>]*data-menu-button/);

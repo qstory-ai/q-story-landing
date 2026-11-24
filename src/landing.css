@@ -377,8 +377,9 @@ body {
   position: relative;
 }
 
+/* 닫힌 항목은 54px라서 항목 사이는 12px다. */
 .faq-item + .faq-item {
-  margin-top: 14px;
+  margin-top: 12px;
 }
 
 .faq-item[open] + .faq-item {
@@ -387,7 +388,7 @@ body {
 
 /* 시안에서 다섯째와 여섯째 사이만 20px 가깝게 벌어져 있다. */
 .faq-item:nth-child(6) {
-  margin-top: 19.89px;
+  margin-top: 17.89px;
 }
 
 .faq-item summary {
@@ -395,21 +396,16 @@ body {
   display: flex;
   align-items: center;
   gap: 16px;
-  height: 52px;
+  height: 54px;
   padding: 0 32px;
+  border: 1px solid #766b80; /* neutral/600 */
   border-radius: 20px;
   background: #fff;
-  filter: drop-shadow(0 12px 18px rgba(117, 80, 211, 0.1));
   cursor: pointer;
 }
 
 .faq-item summary::-webkit-details-marker {
   display: none;
-}
-
-.faq-item--box summary {
-  filter: none;
-  box-shadow: 0 12px 36px 0 rgba(117, 80, 211, 0.1);
 }
 
 .faq-item[open] summary {
@@ -423,6 +419,10 @@ body {
   font-weight: 800;
   line-height: 30px;
   letter-spacing: 0;
+  color: #766b80;
+}
+
+.faq-item[open] .faq-q {
   color: var(--purple);
 }
 

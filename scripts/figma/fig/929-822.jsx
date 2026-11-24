@@ -9,7 +9,7 @@ export default function Component12() {
         아이들의 좋은 질문 경험을 확장할 교육기관과 콘텐츠 파트너를 기다립니다.
       </p>
       <div className="absolute h-[56px] left-[715px] top-[256px] w-[10px]" data-node-id="929:826" data-name="spacer" />
-      <div className="absolute bg-[var(--base\/white,white)] border-2 border-[var(--skyblue\/500,#5eb6f6)] border-solid content-stretch drop-shadow-[0px_12px_18px_rgba(91,46,158,0.1)] flex h-[174px] items-start left-[120px] p-[36px] rounded-[32px] top-[312px] w-[586px]" data-node-id="929:828" data-name="교육기관과 함께">
+      <div className="absolute bg-[var(--base\/white,white)] border-2 border-[var(--skyblue\/500,#5eb6f6)] border-solid content-stretch flex h-[174px] items-start left-[120px] p-[36px] rounded-[32px] top-[312px] w-[586px]" data-node-id="929:828" data-name="교육기관과 함께">
         <div className="[word-break:break-word] content-stretch flex flex-[1_0_0] flex-col gap-[10px] items-start min-w-px not-italic relative whitespace-nowrap" data-node-id="929:831" data-name="Frame">
           <p className="font-['NanumSquareRound:Bold'] leading-[35px] relative shrink-0 text-[25px] text-[color:var(--neutral\/900,#27222d)]" data-node-id="929:832">
             교육기관과 함께
@@ -20,7 +20,7 @@ export default function Component12() {
           </div>
         </div>
       </div>
-      <div className="absolute bg-[var(--base\/white,white)] border-2 border-[var(--orange\/500,#fd7b26)] border-solid content-stretch drop-shadow-[0px_12px_18px_rgba(91,46,158,0.1)] flex h-[174px] items-start left-[734px] p-[36px] rounded-[32px] top-[312px] w-[586px]" data-node-id="929:834" data-name="출판사 · 창작자와 함께">
+      <div className="absolute bg-[var(--base\/white,white)] border-2 border-[var(--orange\/500,#fd7b26)] border-solid content-stretch flex h-[174px] items-start left-[734px] p-[36px] rounded-[32px] top-[312px] w-[586px]" data-node-id="929:834" data-name="출판사 · 창작자와 함께">
         <div className="[word-break:break-word] content-stretch flex flex-[1_0_0] flex-col gap-[10px] items-start min-w-px not-italic relative whitespace-nowrap" data-node-id="929:837" data-name="Frame">
           <p className="font-['NanumSquareRound:Bold'] leading-[35px] relative shrink-0 text-[25px] text-[color:var(--neutral\/900,#27222d)]" data-node-id="929:838">
             출판사 · 창작자와 함께
