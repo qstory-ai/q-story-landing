@@ -13,8 +13,30 @@ const { document } = new JSDOM('<body></body>').window;
 const load = (id) => {
   const holder = document.createElement('div');
   holder.innerHTML = fs.readFileSync(path.join(outDir, `${id}.html`), 'utf8');
+  fillPlaceholders(holder);
   return holder.firstElementChild;
 };
+
+// 시안에 글자로만 남은 그림 자리를 실제 그림으로 채운다.
+// - 태블릿 화면의 「그레텔의 공간」: 글자를 지우고 바로 아래 하늘색 바탕에 동화 장면을 깐다(landing.css .screen-scene).
+// - 첫 화면 두 번째 장의 「캐릭터 이미지(단이/그레텔)」: 같은 자리에 단이 그림을 둔다.
+function fillPlaceholders(holder) {
+  holder.querySelectorAll('p').forEach((p) => {
+    const text = p.textContent.trim();
+    if (text === '그레텔의 공간') {
+      p.previousElementSibling?.classList.add('screen-scene');
+      p.remove();
+    } else if (text === '캐릭터 이미지(단이/그레텔)') {
+      const img = document.createElement('img');
+      img.className = `${p.className} hero-character`;
+      img.src = '/assets/hero-dani.webp';
+      img.alt = '동화 「나 대신 자 줘」의 주인공 단이';
+      img.setAttribute('loading', 'lazy');
+      img.setAttribute('decoding', 'async');
+      p.replaceWith(img);
+    }
+  });
+}
 const node = (root, id) => {
   const el = root.querySelector(`.n-${id.replace(/:/g, '-')}`);
   if (!el) throw new Error(`node ${id} missing`);
