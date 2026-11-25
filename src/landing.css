@@ -550,22 +550,6 @@ body {
   box-shadow: 0 0 0 4px #7550d3;
 }
 
-/* ---- 시안의 그림 자리 채우기 (scripts/figma/assemble.mjs fillPlaceholders) ---- */
-/* 태블릿 화면 바탕: 헨젤과 그레텔이 빵 부스러기를 떨어뜨리는 장면. 말풍선 내용과 맞춘 그림이다. */
-.screen-scene {
-  background: #e8f2ff url('/assets/screen-breadcrumbs.webp') center / cover no-repeat;
-}
-
-/* 첫 화면 두 번째 장: 분홍 큰 원(939:1705, 553px) 안쪽에 단이 그림을 둥글게 넣는다. */
-.hero-character {
-  left: 829px;
-  top: 215px;
-  width: 470px;
-  height: 470px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
 /* ---- 연구 기반 설계 카드 ---- */
 /* 시안은 칩만 카드 가운데에 있고 제목·본문·출처는 손으로 놓은 좌표라 30~50px씩 어긋나 있다.
    모두 카드 가운데(왼쪽 81.46 + 310, 오른쪽 737.1 + 310)에 맞추고, 오른쪽 출처 높이도 왼쪽과 같게 둔다. */
