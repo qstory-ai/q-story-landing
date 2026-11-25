@@ -332,7 +332,7 @@ function convert(classList) {
         set('color', '#fff');
         break;
       case 'text-black':
-        set('color', '#1a1c20');
+        set('color', '#000');
         break;
       case 'bg-white':
         set('background-color', '#fff');
